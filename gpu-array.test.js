@@ -72,3 +72,21 @@ await assertEach((ei, ai, fi) => (ei / ai) !== fi,
 console.log(`OK: e / a === f`);
 
 
+const g = gpu.log(a);
+const h = gpu.pow(a, b);
+
+
+await g.load();
+await assertEach((ai, gi) => Math.log(ai) !== gi,
+                 (ai, gi) => `$log({ai}) !== ${gi}`,
+                 a, g);
+console.log(`OK: log(a) === g`);
+showArray(g);
+
+
+await h.load();
+await assertEach((ai, bi, hi) => (ai ** bi) !== hi,
+                 (ai, bi, hi) => `pow(${ai}, ${bi}) !== ${hi}`,
+                 a, b, h);
+console.log(`OK: pow(a, b) === h`);
+showArray(h);
