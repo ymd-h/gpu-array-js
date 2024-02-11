@@ -65,18 +65,15 @@ console.log(await c.get(1, 1));
 ### Template-based Shader
 In my [previous work](https://github.com/ymd-h/vulkpy),
 shader management was [one of the biggest problems](https://github.com/ymd-h/vulkpy/issues/2).
-
 Here, we try to implement type agnostic compute shaders in [shader.js](https://github.com/ymd-h/gpu-array-js/blob/master/shader.js).
 Types are passed as arguments.
-
-Moreover, similar computations are generated from single template
-(e.g. `a + b` and `a - b`, etc.).
+Moreover, similar computations (e.g. `a + b` and `a - b`, etc.) are generated
+from single template.
 
 
 ### Update Tracking
 CPU-side and GPU-side data updates are tracked with `.cpu_dirty` and `.gpu_dirty`
 properties of `NDArray`.
-
 Only when the data are updated `send()` / `load()` methods acutually copy data.
 
 
@@ -89,3 +86,4 @@ A lot of features still missing;
 - Non Element-wise Computation (e.g. Matrix Multiplication)
 - Non Single Element `get()` / `set()`
 - `f16` (supported by WebGPU, but no corresponding `TypedArray`)
+- Custom Strides
