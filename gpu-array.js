@@ -340,6 +340,9 @@ class NDArray {
         this.shape = shape.map(s => s | 0);
 
         // strides
+        if(strides !== undefined){
+            throw new Error(`custom strides has not supported yet`);
+        }
         strides ??= shape.reduce((a, si) => {
             a = a.map(ai => ai * si);
             a.push(1);
