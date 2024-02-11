@@ -304,6 +304,8 @@ class GPUBackend {
             ],
             [Math.ceil(out.length / size)],
         );
+
+        return out;
     }
 };
 
