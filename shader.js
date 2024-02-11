@@ -12,7 +12,7 @@ var<storage, read_write> out: array<${out.type}>;
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
-    if(id.x > arrayLength(&out)){ return; }
+    if(id.x >= arrayLength(&out)){ return; }
 
     out[id.x] = ${out.conv}(${lhs.conv}(lhs[id.x]) ${op} ${rhs.conv}(rhs[id.x]));
 }
@@ -27,7 +27,7 @@ var<storage, read_write> out: array<${out.type}>;
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
-    if(id.x > arrayLength(&out)){ return; }
+    if(id.x >= arrayLength(&out)){ return; }
 
     out[id.x] = ${out.conv}(${f}(${arg.conv}(arg[id.x])));
 }
@@ -45,7 +45,7 @@ var<storage, read_write> out: array<${out.type}>;
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
-    if(id.x > arrayLength(&out)){ return; }
+    if(id.x >= arrayLength(&out)){ return; }
 
     out[id.x] = ${out.conv}(${f}(${args[0].conv}(arg0[id.x]),
                                  ${args[1].conv}(arg1[id.x])));
