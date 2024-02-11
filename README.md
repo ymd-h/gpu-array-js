@@ -53,9 +53,6 @@ console.log(await c.get(1, 1));
 // console.log(c.get_without_load(0, 1));
 // console.log(c.get_without_load(1, 0));
 // console.log(c.get_without_load(1, 1));
-
-// BAD: The following might execute copy (load()) multiple times.
-// await Promise.all([c.get(0,0), c.get(0,1), c.get(1,0), c.get(1,1)])
 ```
 
 ## Features
