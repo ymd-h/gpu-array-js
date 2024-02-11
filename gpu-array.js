@@ -343,6 +343,9 @@ class GPUBackend {
 
 
 class NDArray {
+    /** @type {Promise<undefined>?} */
+    #load_promise
+
     /**
      * @constructor
      * @param {GPUDevice} device
@@ -425,14 +428,21 @@ class NDArray {
                 GPUBufferUsage.COPY_SRC |
                 GPUBufferUsage.COPY_DST,
         });
+
+        this.#load_promise = null;
     }
 
     /**
      * Load Data from GPU if necessary
+     * @returns {Promise<undefined>}
      */
-    async load(){
+    load(){
         if(!this.gpu_dirty){
             return;
+        }
+
+        if(this.#load_promise !== null){
+            return this.#load_promise;
         }
 
         const staging = this.device.createBuffer({
@@ -446,15 +456,20 @@ class NDArray {
         this.device.queue.submit([cmd.finish()]);
 
         // Note: mapAsync ensures submitted work done before.
-        await staging.mapAsync(GPUMapMode.READ, 0, this.gpu.size);
+        this.#load_promise = staging.mapAsync(GPUMapMode.READ, 0, this.gpu.size).then(
+            () => {
+                const b = new Uint8Array(staging.getMappedRange(0, this.gpu.size));
+                (new Uint8Array(this.cpu.buffer)).set(b);
 
-        const b = new Uint8Array(staging.getMappedRange(0, this.gpu.size));
-        (new Uint8Array(this.cpu.buffer)).set(b);
+                staging.unmap();
+                staging.destroy();
 
-        staging.unmap();
-        staging.destroy();
+                this.gpu_dirty = false;
+                this.#load_promise = null;
+            }
+        );
 
-        this.gpu_dirty = false;
+        return this.#load_promise;
     }
 
     /**
