@@ -58,7 +58,62 @@ console.log(await c.get(1, 1));
 // await Promise.all([c.get(0,0), c.get(0,1), c.get(1,0), c.get(1,1)])
 ```
 
+## Features
+### Predefined Functions
 
+- `GPUBackend.add(lhs: GPUArray, rhs: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.sub(lhs: GPUArray, rhs: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.mul(lhs: GPUArray, rhs: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.div(lhs: GPUArray, rhs: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.abs(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.acos(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.acosh(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.asin(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.asinh(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.atan(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.atanh(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.atan2(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.ceil(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.clamp(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.cos(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.cosh(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.exp(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.exp2(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.floor(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.log(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.log2(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.sign(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.sin(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.sinh(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.sqrt(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.tan(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.tanh(arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.max(arg0: GPUArray, arg1: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.min(arg0: GPUArray, arg1: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.pow(arg0: GPUArray, arg1: GPUArray, out: GPUArray?): GPUArray`
+
+
+### Custom Function for WGSL Built-in Function
+We don't predefine all the WGSL built-in functions,
+but you can still use them.
+
+cf. [WGSL Numeric Built-in Functions](https://gpuweb.github.io/gpuweb/wgsl/#numeric-builtin-functions)
+
+- `GPUBackend._func1(f: string, arg: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend._func2(f: string, arg0: GPUArray, arg1: GPUArray, out: GPUArray?): GPUArray`
+
+`f` is a built-in function name.
+
+
+### Custom Function from Scratch
+> [!WARNING]
+> This API is not user friendly, nor intended to use.
+
+- `GPUBackend.createShader(code: string): GPUShaderModule`
+- `GPUBackend.execute(shader: GPUShaderModule, specs: {array: GPUArray, mode: "read-only" | "write-only" | "read-write"}[], dispatch: number[]): undefined`
+
+
+`dispatch` are number of GPU workgroups of X, Y, Z. 1 <= `dispatch.length` <= 3.
 
 ## Design
 
