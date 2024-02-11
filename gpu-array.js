@@ -94,7 +94,7 @@ class GPUBackend {
             "max", "min",
             "pow",
         ];
-        for(const [name, f] of f2){
+        for(const f of f2){
             this[f] = (arg0, arg1, out) => this._func2(f, arg0, arg1, out);
         }
     }
