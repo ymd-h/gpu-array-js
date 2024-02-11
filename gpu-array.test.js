@@ -16,6 +16,17 @@ const assertEach = async (f, msg, ...args) => {
     }
 }
 
+const showArray = (array) => {
+    console.log("[" + Array.from({length: N}, (_, row) => {
+        return "[" + (
+            Array.from(
+                {length: N},
+                (_, col) => array.get_without_load(row, col),
+            )
+        ).join() + "]";
+    }).join("\n") + "]");
+};
+
 
 const a = gpu.Array({ shape: [N, N] });
 const b = gpu.Array({ shape: [N, N] });
@@ -26,6 +37,8 @@ for(let col = 0; col < N; col++){
         b.set(col + row, row, col);
     }
 }
+showArray(a);
+showArray(b);
 
 const c = gpu.add(a, b);
 const d = gpu.sub(a, b);
@@ -38,6 +51,7 @@ await assertEach((ai, bi, ci) => (ai + bi) !== ci,
                  (ai, bi, ci) => `${ai} + {bi} !== ${ci}`,
                  a, b, c);
 console.log(`OK: a + b === c`);
+showArray(c);
 
 await d.load();
 await assertEach((ai, bi, di) => (ai - bi) !== di,
