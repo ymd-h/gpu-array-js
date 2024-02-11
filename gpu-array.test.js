@@ -90,3 +90,18 @@ await assertEach((ai, bi, hi) => (ai ** bi) !== hi,
                  a, b, h);
 console.log(`OK: pow(a, b) === h`);
 showArray(h);
+
+
+const u32 = gpu.Array({ shape: [N, N], dtype: "u32" });
+for(let row = 0; row < N; row++){
+    for(let col = 0; col < N; col++){
+        u32.set(row + col, row, col);
+    }
+}
+const a_u32 = gpu.add(a, u32);
+
+await a_u32.load();
+await assertEach((ai, ui, aui) => (ai + ui) !== aui,
+                 (ai, ui, aui) => `${ai} + ${ui} !== ${aui}`,
+                 a, u32, a_u32);
+console.log(`OK: a + u32 === a_u32 (type promotion)`);
