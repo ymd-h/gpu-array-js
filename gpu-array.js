@@ -36,6 +36,25 @@ import { vector_op, func1, func2 } from "./shader.js";
  */
 
 
+/**
+ * @param {string} t1
+ * @param {string} t2
+ * @returns {string}
+ */
+const promoteType = (t1, t2) => {
+    if((t1 === "f32") || (t2 === "f32")){
+        return "f32";
+    }
+
+    if((t1 === "f16") || (t2 === "f16")){
+        return "f16";
+    }
+
+    throw new Error(`Incompatible Types: ${t1}, ${t2}`);
+}
+
+
+
 class GPUBackend {
     /**
      * @constructor
@@ -231,15 +250,19 @@ class GPUBackend {
 
 
     _vector_op(op, lhs, rhs, out){
-        out ??= this.Array({ shape: lhs.shape, dtype: lhs.dtype });
+        const dtype = (lhs.dtype === rhs.dtype) ?
+              lhs.dtype :
+              promoteType(lhs.dtype, rhs.dtype);
+
+        out ??= this.Array({ shape: lhs.shape, dtype });
         const size = this.device.limits.maxComputeWorkgroupSizeX;
 
         const shader = this.createShader(
             vector_op(
                 op, size,
-                {binding: 0, type: lhs.dtype, conv: ""},
-                {binding: 1, type: rhs.dtype, conv: ""},
-                {binding: 2, type: out.dtype, conv: ""},
+                {binding: 0, type: lhs.dtype, conv: (dtype === lhs.dtype) ? "" : dtype},
+                {binding: 1, type: rhs.dtype, conv: (dtype === rhs.dtype) ? "" : dtype},
+                {binding: 2, type: out.dtype, conv: (dtype === out.dtype) ? "" : dtype},
             ),
         );
 
@@ -260,11 +283,13 @@ class GPUBackend {
         out ??= this.Array({ shape: arg.shape, dtype: arg.dtype });
         const size = this.device.limits.maxComputeWorkgroupSizeX;
 
+        const out_conv = (arg.dtype === out.dtype) ? "" : out.dtype;
+
         const shader = this.createShader(
             func1(
                 f, size,
                 {binding: 0, type: arg.dtype, conv: ""},
-                {binding: 1, type: out.dtype, conv: ""},
+                {binding: 1, type: out.dtype, conv: out_conv},
             ),
         );
 
@@ -281,17 +306,23 @@ class GPUBackend {
     }
 
     _func2(f, arg0, arg1, out){
-        out ??= this.Array({ shape: arg0.shape, dtype: arg0.dtype });
+        const dtype = (arg0.dtype === arg1.dtype) ?
+              arg0.dtype :
+              promoteType(arg0.dtype, arg1.dtype);
+
+        out ??= this.Array({ shape: arg0.shape, dtype });
         const size = this.device.limits.maxComputeWorkgroupSizeX;
+
+        const conv = (v) => (v.dtype === dtype) ? "" : dtype;
 
         const shader = this.createShader(
             func2(
                 f, size,
                 [
-                    {binding: 0, type: arg0.dtype, conv: ""},
-                    {binding: 1, type: arg1.dtype, conv: ""},
+                    { binding: 0, type: arg0.dtype, conv: conv(arg0) },
+                    { binding: 1, type: arg1.dtype, conv: conv(arg1) },
                 ],
-                { binding: 2, type: out.dtype, conv: "" },
+                { binding: 2, type: out.dtype, conv: conv(out) },
             ),
         );
 
