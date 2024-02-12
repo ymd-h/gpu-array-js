@@ -100,12 +100,13 @@ const broadcastStrides = (array, shape) => {
     while(strides.length < shape.length){
         strides.unshift(0);
     }
+    const diff = shape.length - array.shape.length; // [0, shape.length)
 
     for(let i = 0; i < shape.length; i++){
-        if((strides[i] === 0) || (array.shape[i] === shape[i])){
+        if((strides[i] === 0) || (array.shape[i - diff] === shape[i])){
             continue;
         }
-        if(array.shape[i] !== 1){
+        if(array.shape[i - diff] !== 1){
             const s1 = array.shape.join(",");
             const s2 = shape.join(",");
             throw new Error(`Incompatible Shape: [${s1}] -> [${s2}]`);
