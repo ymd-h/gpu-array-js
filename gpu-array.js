@@ -1,6 +1,10 @@
 /** @module gpu-array */
 
-import { vector_op, vector_op_indirect, func1, func2 } from "./shader.js";
+import {
+    vector_op, vector_op_indirect,
+    func1,
+    func2, func2_indirect,
+} from "./shader.js";
 
 
 /**
@@ -428,7 +432,7 @@ class GPUBackend {
               arg0.dtype :
               promoteType(arg0.dtype, arg1.dtype);
 
-        out ??= this.Array({ shape: arg0.shape, dtype });
+        out ??= this.Array({ shape: broadcastShapes(arg0.shape, arg1.shape), dtype });
         const size = this.device.limits.maxComputeWorkgroupSizeX;
 
         if(out.custom_strides){
@@ -437,36 +441,62 @@ class GPUBackend {
 
         const conv = (v) => (v.dtype === dtype) ? "" : dtype;
 
-        if(arg0.custom_strides ||
-           arg1.custom_strides ||
-           arg0.shape.length !== out.shape.length ||
-           arg1.shape.length !== out.shape.length ||
-           arg0.shape.some((s, i) => s !== out.shape[i]) ||
-           arg1.shape.some((s, i) => s !== out.shape[i])){
-            throw new Error(`Broadcast is not supported`);
-        }
+        const use_strides = (arg0.custom_strides ||
+                             arg1.custom_strides ||
+                             arg0.shape.length !== out.shape.length ||
+                             arg1.shape.length !== out.shape.length ||
+                             arg0.shape.some((s, i) => s !== out.shape[i]) ||
+                             arg1.shape.some((s, i) => s !== out.shape[i]));
 
-        const shader = this.createShader(
-            func2(
-                f, size,
-                [
-                    { binding: 0, type: arg0.dtype, conv: conv(arg0) },
-                    { binding: 1, type: arg1.dtype, conv: conv(arg1) },
-                ],
-                { binding: 2, type: out.dtype, conv: conv(out) },
-            ),
-        );
-
-        this.execute(
-            shader,
+        const shader_args = [
+            f, size,
             [
+                { binding: 0, type: arg0.dtype, conv: conv(arg0) },
+                { binding: 1, type: arg1.dtype, conv: conv(arg1) },
+            ],
+            { binding: 2, type: out.dtype, conv: conv(out) },
+        ];
+
+        const execute_buffers = [
                 {array: arg0, mode: "read-only"},
                 {array: arg1, mode: "read-only"},
                 {array: out, mode: "write-only"},
-            ],
-            [Math.ceil(out.length / size)],
+        ];
+
+        let arg0_strides = null;
+        let arg1_strides = null;
+        let out_strides = null;
+
+        if(use_strides){
+            arg0_strides = this.#stridesBuffer(broadcastStrides(arg0, out.shape));
+            arg1_strides = this.#stridesBuffer(broadcastStrides(arg1, out.shape));
+            out_strides = this.#stridesBuffer(out.shape);
+
+            shader_args.push(
+                {binding: 3},
+                {binding: 4},
+                {binding: 5},
+            );
+
+            execute_buffers.push(
+                {array: arg0_strides, mode: "read-only"},
+                {array: arg1_strides, mode: "read-only"},
+                {array: out_strides, mode: "read-only"},
+            );
+        }
+
+        const shader = this.createShader(
+            use_strides ?
+                func2_indirect(...shader_args) :
+                func2(...shader_args),
         );
 
+        this.execute(shader, execute_buffers, [Math.ceil(out.length / size)]);
+        this.device.queue.onSubmittedWorkDone().then(() => {
+            arg0_strides?.destroy();
+            arg1_strides?.destroy();
+            out_strides?.destroy();
+        });
         return out;
     }
 };
