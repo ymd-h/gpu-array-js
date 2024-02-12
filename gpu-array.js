@@ -263,7 +263,10 @@ class GPUBackend {
                 GPUBufferUsage.COPY_DST,
         });
         this.device.queue.writeBuffer(buffer, 0, Uint32Array.from(strides));
-        return buffer;
+        return {
+            send: () => {},
+            gpu: buffer,
+        };
     }
 
     /**
@@ -385,9 +388,9 @@ class GPUBackend {
 
         this.execute(shader, execute_buffers, [Math.ceil(out.length / size)]);
         this.device.queue.onSubmittedWorkDone().then(() => {
-            lhs_strides?.destroy();
-            rhs_strides?.destroy();
-            out_strides?.destroy();
+            lhs_strides?.gpu.destroy();
+            rhs_strides?.gpu.destroy();
+            out_strides?.gpu.destroy();
         });
         return out;
     }
@@ -494,9 +497,9 @@ class GPUBackend {
 
         this.execute(shader, execute_buffers, [Math.ceil(out.length / size)]);
         this.device.queue.onSubmittedWorkDone().then(() => {
-            arg0_strides?.destroy();
-            arg1_strides?.destroy();
-            out_strides?.destroy();
+            arg0_strides?.gpu.destroy();
+            arg1_strides?.gpu.destroy();
+            out_strides?.gpu.destroy();
         });
         return out;
     }
