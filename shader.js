@@ -48,7 +48,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
     u32 O = id.x;
     u32 L = 0;
     u32 R = 0;
-    for(u32 s = arrayLength(&out_stride) -1; s > 0; s--){
+    for(u32 s = arrayLength(&out_strides) -1; s > 0; s--){
         u32 i = O % out_strides[s-1];
         L += i * lhs_strides[s];
         R += i * rhs_strides[s];
