@@ -391,7 +391,17 @@ class GPUBackend {
         out ??= this.Array({ shape: arg.shape, dtype: arg.dtype });
         const size = this.device.limits.maxComputeWorkgroupSizeX;
 
+        if(out.custom_strides){
+            throw new Error(`Custom Strides for out is not supported`);
+        }
+
         const out_conv = (arg.dtype === out.dtype) ? "" : out.dtype;
+
+        if(arg.custom_strides ||
+           arg.shape.length !== out.shape.length ||
+           arg.shape.some((s, i) => s !== out.shape[i])){
+            throw new Error(`Broadcast is not supported`);
+        }
 
         const shader = this.createShader(
             func1(
@@ -421,7 +431,20 @@ class GPUBackend {
         out ??= this.Array({ shape: arg0.shape, dtype });
         const size = this.device.limits.maxComputeWorkgroupSizeX;
 
+        if(out.custom_strides){
+            throw new Error(`Custom Strides for out is not supported`);
+        }
+
         const conv = (v) => (v.dtype === dtype) ? "" : dtype;
+
+        if(arg0.custom_strides ||
+           arg1.custom_strides ||
+           arg0.shape.length !== out.shape.length ||
+           arg1.shape.length !== out.shape.length ||
+           arg0.shape.some((s, i) => s !== out.shape[i]) ||
+           arg1.shape.some((s, i) => s !== out.shape[i])){
+            throw new Error(`Broadcast is not supported`);
+        }
 
         const shader = this.createShader(
             func2(
