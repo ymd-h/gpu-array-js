@@ -374,9 +374,9 @@ class NDArray {
         this.shape = shape.map(s => s | 0);
 
         // strides
-        if(strides !== undefined){
-            throw new Error(`custom strides has not supported yet`);
-        }
+        /** @type {bool} */
+        this.custom_strides = (strides !== undefined);
+
         strides ??= shape.reduce((a, si) => {
             a = a.map(ai => ai * si);
             a.push(1);
@@ -401,7 +401,9 @@ class NDArray {
         this.cpu;
 
         /** @type {number} */
-        this.length = shape.reduce((a, v) => a * v);
+        this.length = this.custom_strides ?
+            this.shape.reduce((a, v, i) => a + (v-1)*this.strides[i], 1) :
+            this.shape.reduce((a, v) => a * v);
 
         switch(this.dtype){
         case "f16":
