@@ -1,5 +1,23 @@
 import { createGPU } from "./gpu-array.js";
 
+const almostEqual = (x, y, atol, rtol) => {
+    atol ??= 1e-6;
+    rtol ??= 1e-6;
+
+    if(Object.is(x, y)){
+        return true;
+    }
+
+    const diff = Math.abs(x - y);
+    if(diff < atol){
+        return true;
+    }
+    if(diff < Math.abs(x * rtol)){
+        return true;
+    }
+    return false;
+};
+
 
 const gpu = await createGPU();
 
@@ -47,26 +65,26 @@ const f = gpu.div(e, a);
 
 
 await c.load();
-await assertEach((ai, bi, ci) => (ai + bi) !== ci,
+await assertEach((ai, bi, ci) => almostEqual(ai + bi, ci),
                  (ai, bi, ci) => `${ai} + ${bi} !== ${ci}`,
                  a, b, c);
 console.log(`OK: a + b === c`);
 showArray(c);
 
 await d.load();
-await assertEach((ai, bi, di) => (ai - bi) !== di,
+await assertEach((ai, bi, di) => almostEqual(ai - bi, di),
                  (ai, bi, di) => `${ai} - ${bi} !== ${di}`,
                  a, b, d);
 console.log(`OK: a - b === d`);
 
 await e.load();
-await assertEach((ci, ai, ei) => (ci * ai) !== ei,
+await assertEach((ci, ai, ei) => almostEqual(ci * ai, ei),
                  (ci, ai, ei) => `${ci} * ${ai} !== ${ei}`,
                  c, a, e);
 console.log(`OK: c * a === e`);
 
 await f.load();
-await assertEach((ei, ai, fi) => (ei / ai) !== fi,
+await assertEach((ei, ai, fi) => almostEqual(ei / ai, fi),
                  (ei, ai, fi) => `${ei} / ${ai} !== ${fi}`,
                  e, a, f);
 console.log(`OK: e / a === f`);
@@ -77,7 +95,7 @@ const h = gpu.pow(a, b);
 
 
 await g.load();
-await assertEach((ai, gi) => Math.log(ai) !== gi,
+await assertEach((ai, gi) => almostEqual(Math.log(ai), gi),
                  (ai, gi) => `$log({ai}) !== ${gi}`,
                  a, g);
 console.log(`OK: log(a) === g`);
@@ -85,7 +103,7 @@ showArray(g);
 
 
 await h.load();
-await assertEach((ai, bi, hi) => (ai ** bi) !== hi,
+await assertEach((ai, bi, hi) => almostEqual(ai ** bi, hi),
                  (ai, bi, hi) => `pow(${ai}, ${bi}) !== ${hi}`,
                  a, b, h);
 console.log(`OK: pow(a, b) === h`);
@@ -101,7 +119,9 @@ for(let row = 0; row < N; row++){
 const a_u32 = gpu.add(a, u32);
 
 await a_u32.load();
-await assertEach((ai, ui, aui) => (ai + ui) !== aui,
+await assertEach((ai, ui, aui) => almostEqual(ai + ui, aui),
                  (ai, ui, aui) => `${ai} + ${ui} !== ${aui}`,
                  a, u32, a_u32);
 console.log(`OK: a + u32 === a_u32 (type promotion)`);
+
+
