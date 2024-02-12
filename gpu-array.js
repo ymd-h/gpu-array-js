@@ -403,7 +403,7 @@ class NDArray {
         /** @type {number} */
         this.length = this.custom_strides ?
             this.shape.reduce((a, v, i) => a + (v-1)*this.strides[i], 1) :
-            this.shape.reduce((a, v) => a * v);
+            this.shape.reduce((a, v) => a * v, 1);
 
         switch(this.dtype){
         case "f16":
