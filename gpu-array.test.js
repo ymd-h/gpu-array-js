@@ -9,8 +9,8 @@ const assertEach = async (f, msg, ...args) => {
     for(let col = 0; col < N; col++){
         for(let row = 0; row < N; row++){
             const v = await Promise.all(args.map(arg => arg.get(row, col)));
-            if(!f(...args)){
-                throw new Error(msg(...arg));
+            if(!f(...v)){
+                throw new Error(msg(...v));
             }
         }
     }
