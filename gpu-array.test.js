@@ -48,7 +48,7 @@ const f = gpu.div(e, a);
 
 await c.load();
 await assertEach((ai, bi, ci) => (ai + bi) !== ci,
-                 (ai, bi, ci) => `${ai} + {bi} !== ${ci}`,
+                 (ai, bi, ci) => `${ai} + ${bi} !== ${ci}`,
                  a, b, c);
 console.log(`OK: a + b === c`);
 showArray(c);
