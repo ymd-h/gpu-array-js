@@ -1,6 +1,6 @@
 /** @module gpu-array */
 
-import { vector_op, func1, func2 } from "./shader.js";
+import { vector_op, vector_op_indirect, func1, func2 } from "./shader.js";
 
 
 /**
@@ -53,6 +53,64 @@ const promoteType = (t1, t2) => {
     throw new Error(`Incompatible Types: ${t1}, ${t2}`);
 }
 
+
+/**
+ * @param {number[][]} shapes
+ * @returns {number[]}
+ */
+const broadcastShapes = (...shapes) => {
+    const length = shapes.reduce((a, s) => Math.max(a, s.length), 0);
+
+    return Array.from(
+        { length },
+        (_, i) => shapes.reduce(
+            (a, s) => {
+                if(i < length - s.length){ return a; }
+                const si = s[i - (length - s.length)];
+
+                if((a === si) || (si === 1)){ return a; }
+                if(a === 1){ return si; }
+
+                throw new Error(`Incompatible Shape`);
+            },
+            1
+        ),
+    );
+};
+
+
+/**
+ * @param {GPUArray} array
+ * @param {number[]} shape
+ * @returns {number[]}
+ */
+const broadcastStrides = (array, shape) => {
+    const strides = [...array.strides];
+
+    if(strides.length > shape.length){
+        const s1 = array.shape.join(",");
+        const s2 = shape.join(",");
+        throw new Error(`Incompatible Shape: [${s1}] -> [${s2}]`);
+    }
+
+    while(strides.length < shape.length){
+        strides.unshift(0);
+    }
+
+    for(let i = 0; i < shape.length; i++){
+        if((strides[i] === 0) || (array.shape[i] === shape[i])){
+            continue;
+        }
+        if(array.shape[i] !== 1){
+            const s1 = array.shape.join(",");
+            const s2 = shape.join(",");
+            throw new Error(`Incompatible Shape: [${s1}] -> [${s2}]`);
+        }
+        strides[i] = 0;
+    }
+
+    return strides;
+};
 
 
 class GPUBackend {
@@ -192,6 +250,17 @@ class GPUBackend {
         return new NDArray(this.device, options);
     }
 
+    #stridesBuffer(strides){
+        this.assertLost();
+        const buffer = this.device.createBuffer({
+            size: 4 * strides.length,
+            usage: GPUBufferUsage.STORAGE |
+                GPUBufferUsage.COPY_DST,
+        });
+        this.device.queue.writeBuffer(buffer, 0, Uint32Array.from(strides));
+        return buffer;
+    }
+
     /**
      * Execute GPU Computation
      * @param {GPUShaderModule} shader
@@ -254,28 +323,67 @@ class GPUBackend {
               lhs.dtype :
               promoteType(lhs.dtype, rhs.dtype);
 
-        out ??= this.Array({ shape: lhs.shape, dtype });
+        out ??= this.Array({ shape: broadcastShapes(lhs.shape, rhs.shape), dtype });
         const size = this.device.limits.maxComputeWorkgroupSizeX;
 
-        const shader = this.createShader(
-            vector_op(
+        if(out.custom_strides){
+            throw new Error(`Custom Strides for out is not supported`);
+        }
+
+        const shader_args = [
                 op, size,
                 {binding: 0, type: lhs.dtype, conv: (dtype === lhs.dtype) ? "" : dtype},
                 {binding: 1, type: rhs.dtype, conv: (dtype === rhs.dtype) ? "" : dtype},
                 {binding: 2, type: out.dtype, conv: (dtype === out.dtype) ? "" : dtype},
-            ),
-        );
+        ];
 
-        this.execute(
-            shader,
-            [
+        const execute_buffers = [
                 {array: lhs, mode: "read-only"},
                 {array: rhs, mode: "read-only"},
                 {array: out, mode: "write-only"},
-            ],
-            [Math.ceil(out.length / size)],
+        ];
+
+        let lhs_strides = null;
+        let rhs_strides = null;
+        let out_strides = null;
+
+        const use_strides = (
+            lhs.custom_strides || rhs.custom_strides ||
+                (out.shape.length !== lhs.shape.length) ||
+                (out.shape.length !== rhs.shape.length) ||
+                lhs.shape.some((s, i) => s !== out.shape[i]) ||
+                rhs.shape.some((s, i) => s !== out.shape[i])
+        );
+        if(use_strides){
+            lhs_strides = this.#stridesBuffer(broadcastStrides(lhs, out.shape));
+            rhs_strides = this.#stridesBuffer(broadcastStrides(rhs, out.shape));
+            out_strides = this.#stridesBuffer(out.strides);
+
+            shader_args.push(
+                {binding: 3},
+                {binding: 4},
+                {binding: 5},
+            );
+
+            execute_buffers.push(
+                {array: lhs_strides, mode: "read-only"},
+                {array: rhs_strides, mode: "read-only"},
+                {array: out_strides, mode: "read-only"},
+            );
+        }
+
+        const shader = this.createShader(
+            use_strides ?
+                vector_op_indirect(...shader_args):
+                vector_op(...shader_args),
         );
 
+        this.execute(shader, execute_buffers, [Math.ceil(out.length / size)]);
+        this.device.queue.onSubmittedWorkDone().then(() => {
+            lhs_strides?.destroy();
+            rhs_strides?.destroy();
+            out_strides?.destroy();
+        });
         return out;
     }
 
