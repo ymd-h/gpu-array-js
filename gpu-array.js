@@ -726,6 +726,11 @@ const createGPU = async (options) => {
     if(d === undefined){
         throw new Error(`No Available GPU`);
     }
+    d.addEventListener("uncapturederror", ({ error }) => {
+        const name = error.constructor.name;
+        const message = error.message
+        throw new Error(`Uncaptured WebGPU Error: ${name}: ${message}`);
+    });
 
     return new GPUBackend(d);
 };
