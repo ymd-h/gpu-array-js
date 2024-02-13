@@ -45,11 +45,11 @@ var<storage, read> out_strides: array<u32>;
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
-    u32 O = id.x;
-    u32 L = 0;
-    u32 R = 0;
-    for(u32 s = arrayLength(&out_strides) -1; s > 0; s--){
-        u32 i = O % out_strides[s-1];
+    var O: u32 = id.x;
+    var L: u32 = 0;
+    var R: u32 = 0;
+    for(var s: u32 = arrayLength(&out_strides) -1; s > 0; s--){
+        let i: u32 = O % out_strides[s-1];
         L += i * lhs_strides[s];
         R += i * rhs_strides[s];
         O -= i;
@@ -119,11 +119,11 @@ var<storage, read> out_strides: array<u32>;
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
-    u32 O = id.x;
-    u32 I0 = 0;
-    u32 I1 = 0;
-    for(u32 s = arrayLength(&out_strides) -1; s > 0; s--){
-        u32 i = O % out_strides[s-1];
+    var O: u32 = id.x;
+    var I0: u32 = 0;
+    var I1: u32 = 0;
+    for(var s: u32 = arrayLength(&out_strides) -1; s > 0; s--){
+        let i: u32 = O % out_strides[s-1];
         I0 += i * arg0_strides[s];
         I1 += i * arg1_strides[s];
         O -= i;
