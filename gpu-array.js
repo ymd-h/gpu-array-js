@@ -496,7 +496,7 @@ class GPUBackend {
         if(use_strides){
             arg0_strides = this.#stridesBuffer(broadcastStrides(arg0, out.shape));
             arg1_strides = this.#stridesBuffer(broadcastStrides(arg1, out.shape));
-            out_strides = this.#stridesBuffer(out.shape);
+            out_strides = this.#stridesBuffer(out.strides);
 
             shader_args.push(
                 {binding: 3},
