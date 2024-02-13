@@ -28,7 +28,7 @@ const assertEach = async (f, msg, ...args) => {
         for(let row = 0; row < N; row++){
             const v = await Promise.all(args.map(arg => arg.get(row, col)));
             if(!f(...v)){
-                throw new Error(msg(...v));
+                throw new Error(`(${row}, ${col}): ` + msg(...v));
             }
         }
     }
