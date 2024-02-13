@@ -125,3 +125,14 @@ await assertEach((ai, ui, aui) => almostEqual(ai + ui, aui),
 console.log(`OK: a + u32 === a_u32 (type promotion)`);
 
 
+// Broadcast
+const s = gpu.Array({ shape: [1,] });
+s.set(0.2, 0);
+const a_s = gpu.add(a, s);
+
+await a_s.load();
+await assertEach((ai, asi) => almostEqual(ai + s.get_without_load(0), asi),
+                 (ai, asi) => `${ai} + ${s.get_without_load(0)} !== ${asi}`,
+                 a, a_s);
+console.log(`OK: a + s === a_s (Broadcast)`);
+showArray(a_s);
