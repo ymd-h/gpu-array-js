@@ -239,6 +239,28 @@ class GPUBackend {
         }
 
         const shader = this.device.createShaderModule({ code });
+        shader.getCompilationInfo().then(({ messages }) => {
+            for(const { length, lineNum, linePos, message, offset, type } of messages){
+                const m = (
+                    lineNum ?
+                        `Line ${lineNum}:${linePos} - ${code.substr(offset,length)}\n` :
+                        ""
+                ) + message;
+
+                switch(type){
+                case "error":
+                    throw new Error(m);
+                    break;
+                case "warning":
+                    console.warning(m);
+                    break;
+                case "info":
+                    console.log(m);
+                    break;
+                }
+            }
+        });
+
         this.shader.set(code, shader);
 
         return shader;
