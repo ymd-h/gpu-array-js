@@ -58,36 +58,36 @@ console.log(await c.get(1, 1));
 ## Features
 ### Predefined Functions
 
-- `GPUBackend.add(lhs: GPUArray, rhs: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.sub(lhs: GPUArray, rhs: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.mul(lhs: GPUArray, rhs: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.div(lhs: GPUArray, rhs: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.abs(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.acos(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.acosh(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.asin(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.asinh(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.atan(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.atanh(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.atan2(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.ceil(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.clamp(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.cos(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.cosh(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.exp(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.exp2(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.floor(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.log(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.log2(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.sign(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.sin(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.sinh(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.sqrt(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.tan(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.tanh(arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.max(arg0: GPUArray, arg1: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.min(arg0: GPUArray, arg1: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend.pow(arg0: GPUArray, arg1: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend.add(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.sub(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.mul(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.div(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.abs(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.acos(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.acosh(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.asin(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.asinh(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.atan(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.atanh(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.atan2(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.ceil(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.clamp(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.cos(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.cosh(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.exp(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.exp2(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.floor(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.log(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.log2(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.sign(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.sin(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.sinh(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.sqrt(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.tan(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.tanh(arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.max(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.min(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.pow(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
 
 
 ### Custom Function for WGSL Built-in Function
@@ -96,8 +96,8 @@ but you can still use them.
 
 cf. [WGSL Numeric Built-in Functions](https://gpuweb.github.io/gpuweb/wgsl/#numeric-builtin-functions)
 
-- `GPUBackend._func1(f: string, arg: GPUArray, out: GPUArray?): GPUArray`
-- `GPUBackend._func2(f: string, arg0: GPUArray, arg1: GPUArray, out: GPUArray?): GPUArray`
+- `GPUBackend._func1(f: string, arg: NDArray, out: NDArray?): NDArray`
+- `GPUBackend._func2(f: string, arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
 
 `f` is a built-in function name.
 
@@ -107,7 +107,7 @@ cf. [WGSL Numeric Built-in Functions](https://gpuweb.github.io/gpuweb/wgsl/#nume
 > This API is not user friendly, nor intended to use.
 
 - `GPUBackend.createShader(code: string): GPUShaderModule`
-- `GPUBackend.execute(shader: GPUShaderModule, specs: {array: GPUArray, mode: "read-only" | "write-only" | "read-write"}[], dispatch: number[]): undefined`
+- `GPUBackend.execute(shader: GPUShaderModule, specs: {array: NDArray, mode: "read-only" | "write-only" | "read-write"}[], dispatch: number[]): undefined`
 
 
 `dispatch` are number of GPU workgroups of X, Y, Z. 1 <= `dispatch.length` <= 3.

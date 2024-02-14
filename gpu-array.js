@@ -84,7 +84,7 @@ const broadcastShapes = (...shapes) => {
 
 
 /**
- * @param {GPUArray} array
+ * @param {NDArray} array
  * @param {number[]} shape
  * @returns {number[]}
  */
