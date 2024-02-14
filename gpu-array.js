@@ -268,8 +268,7 @@ class GPUBackend {
 
     /**
      * Create NDArray
-     * @param {GPUDevice}
-     * @param {ArrayOptions}
+     * @param {ArrayOptions} options
      * @returns {NDArray}
      */
     Array(options){
