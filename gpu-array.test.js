@@ -20,7 +20,11 @@ const showArray = (array) => {
 const arrayEach = (f, ...args) => {
     for(let col = 0; col < N; col++){
         for(let row = 0; row < N; row++){
-            f(...args.map(a => a.get_without_load(row, col)));
+            try {
+                f(...args.map(a => a.get_without_load(row, col)));
+            } catch(e){
+                throw new Error(`(${row}, ${col}): ${e.message}`);
+            }
         }
     }
 };
