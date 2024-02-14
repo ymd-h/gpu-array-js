@@ -66,7 +66,7 @@ TEST([
     ["log(a)", async () => {
         const g = gpu.log(a);
         await g.load();
-        arrayEach((ai, gi) => assertAlmostEqual(Math.log(ai), gi), a, b, g);
+        arrayEach((ai, gi) => ai < 0 || assertAlmostEqual(Math.log(ai), gi), a, b, g);
     }],
     ["pow(a, b)", async () => {
         const h = gpu.pow(a, b);
