@@ -276,6 +276,31 @@ class GPUBackend {
         return new NDArray(this.device, options);
     }
 
+    /**
+     * Create NDArray filled with 1
+     * @param {ArrayOptions} options
+     * @returns {NDArray}
+     */
+    ones(options){
+        const a = this.Array(options);
+        a.cpu.fill(1);
+        a.cpu_dirty = true;
+        return a;
+    }
+
+    /**
+     * Create NDArray filled with value
+     * @param {number} value
+     * @param {ArrayOptions} options
+     * @returns {NDArray}
+     */
+    full(value, options){
+        const a = this.Array(options);
+        a.cpu.fill(value);
+        a.cpu_dirty = true;
+        return a;
+    }
+
     #stridesBuffer(strides){
         this.assertLost();
         const buffer = this.device.createBuffer({
