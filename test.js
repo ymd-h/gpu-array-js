@@ -1,7 +1,7 @@
 import van from "https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-latest.min.js"
 
 const {
-    div,
+    div, pre,
     table, thead, tbody, tr, th, td,
 } = van.tags;
 
@@ -72,7 +72,7 @@ const TestCase = ([name, f]) => {
                 return TEST_CONFIG.unknown.val;
             }
         }),
-        td(detail),
+        td(pre(detail)),
     );
 };
 
