@@ -741,10 +741,23 @@ const createGPU = async (options) => {
     options ??= {};
     const { adaptor, device } = options;
 
-    const d = await (
-        await navigator?.gpu?.requestAdapter(adaptor)
-    )?.requestDevice(device);
+    const a = await navigator?.gpu?.requestAdapter(adaptor)
+    if(a === undefined){
+        throw new Error(`No Available GPU Adapter`);
+    }
+    a.requestAdapterInfo().then(i => {
+        console.log(`GPU Adapter
+  vendor      : ${i.vendor}
+  architecture: ${i.architecture}
+  device      : ${i.device}
+  description : ${i.description}`);
 
+        console.log(["GPU Supported Features", ...a.features.keys()].join("\n  "));
+        console.table(a.limits);
+    });
+
+
+    const d = await a.requestDevice(device);
     if(d === undefined){
         throw new Error(`No Available GPU`);
     }
