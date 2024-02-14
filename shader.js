@@ -49,13 +49,15 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
     var L: u32 = 0;
     var R: u32 = 0;
     for(var s: u32 = arrayLength(&out_strides) -1; s > 0; s--){
-        let i: u32 = O % out_strides[s-1];
+        let iN: u32 = O % out_strides[s-1];
+        var i: u32 = iN / out_strides[s];
         L += i * lhs_strides[s];
         R += i * rhs_strides[s];
-        O -= i;
+        O -= iN;
     }
-    L += O * lhs_strides[0];
-    R += O * rhs_strides[0];
+    var i: u32 = O / out_strides[0];
+    L += i * lhs_strides[0];
+    R += i * rhs_strides[0];
 
     out[id.x] = ${out.conv}(${lhs.conv}(lhs[L]) ${op} ${rhs.conv}(rhs[R]));
 }
@@ -122,13 +124,15 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
     var I0: u32 = 0;
     var I1: u32 = 0;
     for(var s: u32 = arrayLength(&out_strides) -1; s > 0; s--){
-        let i: u32 = O % out_strides[s-1];
+        let iN: u32 = O % out_strides[s-1];
+        var i: u32 = iN / out_strides[s];
         I0 += i * arg0_strides[s];
         I1 += i * arg1_strides[s];
         O -= i;
     }
-    I0 += O * arg0_strides[0];
-    I1 += O * arg1_strides[0];
+    var i: u32 = O / out_strides[0];
+    I0 += i * arg0_strides[0];
+    I1 += i * arg1_strides[0];
 
     out[id.x] = ${out.conv}(${f}(${args[0].conv}(arg0[I0]),
                                  ${args[1].conv}(arg1[I1])));
