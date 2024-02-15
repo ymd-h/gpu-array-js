@@ -33,7 +33,10 @@ const almostEqual = (x, y, tol) => {
 };
 
 const assertAlmostEqual = (x, y, tol) => {
-    if((x[Symbol.iterator] !== undefined) && (y[Symbol.iterator] !== undefined)){
+    if((typeof x === "object") &&
+       (typeof y === "object") &&
+       (x[Symbol.iterator] !== undefined) &&
+       (y[Symbol.iterator] !== undefined)){
         const xit = x[Symbol.iterator]();
         const yit = y[Symbol.iterator]();
 
@@ -59,7 +62,10 @@ const assertAlmostEqual = (x, y, tol) => {
 };
 
 const assertEqual = (x, y) => {
-    if((x[Symbol.iterator] !== undefined) && (y[Symbol.iterator] !== undefined)){
+    if((typeof x === "object") &&
+       (typeof y === "object") &&
+       (x[Symbol.iterator] !== undefined) &&
+       (y[Symbol.iterator] !== undefined)){
         const xit = x[Symbol.iterator]();
         const yit = y[Symbol.iterator]();
 
