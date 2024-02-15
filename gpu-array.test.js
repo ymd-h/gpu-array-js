@@ -4,28 +4,6 @@ import { TEST, assertEqual, assertAlmostEqual } from "./test.js";
 
 const gpu = await createGPU();
 
-const showArray = (array) => {
-    console.log("[" + Array.from({length: N}, (_, row) => {
-        return "[" + (
-            Array.from(
-                {length: N},
-                (_, col) => array.get_without_load(row, col),
-            )
-        ).join() + "]";
-    }).join("\n") + "]");
-};
-
-const arrayEach = (f, ...args) => {
-    for(let col = 0; col < N; col++){
-        for(let row = 0; row < N; row++){
-            try {
-                f(...args.map(a => a.get_without_load(row, col)));
-            } catch(e){
-                throw new Error(`(${row}, ${col}): ${e.message}`);
-            }
-        }
-    }
-};
 
 TEST("Array Creation", [
     ["ones", async () => {
