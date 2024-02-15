@@ -50,42 +50,42 @@ TEST([
     ["a + b", async () => {
         const c = gpu.add(a, b);
         await c.load();
-        arrayEach((ai, bi, ci) => assertAlmostEqual(ai + bi, ci), a, b, c);
+        arrayEach((ai, bi, ci) => assertAlmostEqual(ci, ai + bi), a, b, c);
     }],
     ["a - b", async () => {
         const d = gpu.sub(a, b);
         await d.load();
-        arrayEach((ai, bi, di) => assertAlmostEqual(ai - bi, di), a, b, d);
+        arrayEach((ai, bi, di) => assertAlmostEqual(di, ai - bi), a, b, d);
     }],
     ["a * b", async () => {
         const e = gpu.mul(a, b);
         await e.load();
-        arrayEach((ai, bi, ei) => assertAlmostEqual(ai * bi, ei), a, b, e);
+        arrayEach((ai, bi, ei) => assertAlmostEqual(ei, ai * bi), a, b, e);
     }],
     ["a / b", async () => {
         const f = gpu.div(a, b);
         await f.load();
-        arrayEach((ai, bi, fi) => assertAlmostEqual(ai / bi, fi), a, b, f);
+        arrayEach((ai, bi, fi) => assertAlmostEqual(fi, ai / bi), a, b, f);
     }],
     ["log(a)", async () => {
         const g = gpu.log(a);
         await g.load();
-        arrayEach((ai, gi) => ai < 0 || assertAlmostEqual(Math.log(ai), gi), a, b, g);
+        arrayEach((ai, gi) => ai < 0 || assertAlmostEqual(gi, Math.log(ai)), a, b, g);
     }],
     ["pow(a, b)", async () => {
         const h = gpu.pow(a, b);
         await h.load();
-        arrayEach((ai, bi, hi) => assertAlmostEqual(ai ** bi, hi), a, b, h);
+        arrayEach((ai, bi, hi) => assertAlmostEqual(hi, ai ** bi), a, b, h);
     }],
     ["a + u32 (Type Conversion)", async () => {
         const a_u32 = gpu.add(a, u32);
         await a_u32.load();
-        arrayEach((ai, ui, aui) => assertAlmostEqual(ai + ui, aui), a, u32, a_u32);
+        arrayEach((ai, ui, aui) => assertAlmostEqual(aui, ai + ui), a, u32, a_u32);
     }],
     ["a + s (Broadcast)", async () =>{
         const a_s = gpu.add(a, s);
         await a_s.load();
-        arrayEach((ai, asi) => assertAlmostEqual(ai + s.get_without_load(0), asi),
+        arrayEach((ai, asi) => assertAlmostEqual(asi, ai + s.get_without_load(0)),
                   a, a_s);
     }],
 ]);
