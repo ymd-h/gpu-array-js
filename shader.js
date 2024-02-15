@@ -134,8 +134,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
     I0 += i * arg0_strides[0];
     I1 += i * arg1_strides[0];
 
-    out[id.x] = ${out.conv}(${f}(${args[0].conv}(arg0[I0]),
-                                 ${args[1].conv}(arg1[I1])));
+    out[id.x] = ${out.conv}(${f}(${args[0].conv}(arg0[I0]), ${args[1].conv}(arg1[I1])));
 }
 `;
 
