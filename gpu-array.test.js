@@ -36,6 +36,10 @@ TEST("Array Creation", [
         assertAlmostEqual(await a.get(1, 0), 1);
         assertAlmostEqual(await a.get(1, 1), 1);
     }],
+    ["ones: u32", async () => {
+        const a = gpu.ones({ dtype: "u32" });
+        assertAlmostEqual(a, [1]);
+    }],
     ["full", async () => {
         const a = gpu.full(2);
         assertEqual(a.length, 1);
@@ -47,6 +51,19 @@ TEST("Array Creation", [
         assertAlmostEqual(await a.get(0), 0);
         assertAlmostEqual(await a.get(1), 1);
         assertAlmostEqual(await a.get(2), 2);
+    }],
+    ["arange with start", async () => {
+        const a = gpu.arange({ start: 2, stop: 5 });
+        assertAlmostEqual(a, [2, 3, 4]);
+    }],
+    ["arange with step", async () => {
+        const a = gpu.arange({ stop: 3, step: 0.5 }, { dtype: "f32" });
+        assertEqual(a.length, 6);
+        assertAlmostEqual(a, [0, 0.5, 1.0, 1.5, 2, 2.5]);
+    }],
+    ["arange with negative step", async () => {
+        const a = gpu.arange({ stop: -2, step: -1 });
+        assertAlmostEqual(a, [0, -1]);
     }],
 ]);
 
@@ -79,6 +96,36 @@ TEST("Operator", [
         const c = gpu.div(a, b);
         await c.load();
         assertAlmostEqual(c, [2/0, 2, 1, 2/3]);
+    }],
+]);
+
+TEST("f(a)", [
+    ["sin(a)", async () => {
+        const a = gpu.arange({ start: 1, step: 0.2, stop: 2 }, { dtype: "f32" })
+        const b = gpu.sin(a);
+        await b.load();
+        assertAlmostEqual(
+            b,
+            [Math.sin(1), Math.sin(1.2), Math.sin(1.4), Math.sin(1.6), Math.sin(1.8)],
+            { rtol: 1e-4 },
+        );
+    }],
+    ["floor(a)", async () => {
+        const a = gpu.arange({ start: 1, step: 0.2, stop: 2 }, { dtype: "f32" });
+        const b = gpu.floor(a);
+        await b.load();
+        assertAlmostEqual(b, [1, 1, 1, 1, 1]);
+    }],
+]);
+
+
+TEST("f(a, b)", [
+    ["max(a, b)", async () => {
+        const a = gpu.arange({ start: 1, step: 0.5, stop: 3 }, { dtype: "f32" });
+        const b = gpu.full(2, { shape: [4] });
+        const c = gpu.min(a, b);
+        await c.load();
+        assertAlmostEqual(c, [1, 1.5, 2, 2]);
     }],
 ]);
 
