@@ -618,7 +618,7 @@ class NDArray {
         /** @type {bool} */
         this.custom_strides = (strides !== undefined);
 
-        strides ??= shape.reduce((a, si) => {
+        strides ??= this.shape.reduce((a, si) => {
             a = a.map(ai => ai * si);
             a.push(1);
             return a;
