@@ -642,6 +642,7 @@ class GPUBackend {
             }
 
             arg = out;
+            this.#destroyOnDone(out);
         }
     }
 
@@ -678,6 +679,7 @@ class GPUBackend {
             }
 
             arg = out;
+            this.#destroyOnDone(out);
         }
     }
 };
