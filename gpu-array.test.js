@@ -1,5 +1,10 @@
 import { createGPU } from "./gpu-array.js";
-import { TEST, assertEqual, assertAlmostEqual } from "./test.js";
+import {
+    TEST,
+    assertEqual, assertAlmostEqual,
+    assertTruthy, assertFalsy,
+    assertThrow,
+} from "./test.js";
 
 
 const gpu = await createGPU();

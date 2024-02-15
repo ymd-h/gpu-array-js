@@ -90,6 +90,27 @@ const assertEqual = (x, y) => {
     }
 };
 
+const assertTruthy = (x) => {
+    if(!x){
+        throw new Error(`Fail Truthy`);
+    }
+}
+
+const assertFalsy = (x) => {
+    if(x){
+        throw new Error(`Fail Falsy`);
+    }
+};
+
+const assertThrow = (f) => {
+    try {
+        f();
+    } catch(e){
+        return;
+    }
+    throw new Error(`Fail Throw: No Error are thrown`);
+};
+
 const Run = async (f, result, detail) => {
     try {
         await f();
@@ -146,4 +167,9 @@ const TEST = (summaryLine, cases) => {
 };
 
 
-export { TEST, assertEqual, assertAlmostEqual };
+export {
+    TEST,
+    assertEqual, assertAlmostEqual,
+    assertTruthy, assertFalsy,
+    assertThrow,
+};
