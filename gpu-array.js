@@ -9,7 +9,7 @@ import {
 
 
 /**
- * @typedef {Object} AdaptorOptions
+ * @typedef {Object} AdapterOptions
  * @property {"low-power" | "high-performance" | undefined} powerPreference
  *
  * @typedef {Object} DeviceOptions
@@ -19,7 +19,7 @@ import {
  * @property {Object.<string, *>} requiredLimits
  *
  * @typedef {Object} GPUOptions
- * @property {AdaptorOptions?} adaptor
+ * @property {AdapterOptions?} adapter
  * @property {DeviceOptions?} device
  *
  * @typedef {"i32" | "u32" | "f16" | "f32"} DType
@@ -920,9 +920,9 @@ class NDArray {
  */
 const createGPU = async (options) => {
     options ??= {};
-    const { adaptor, device } = options;
+    const { adapter, device } = options;
 
-    const a = await navigator?.gpu?.requestAdapter(adaptor)
+    const a = await navigator?.gpu?.requestAdapter(adapter)
     if(a === undefined){
         throw new Error(`No Available GPU Adapter`);
     }
