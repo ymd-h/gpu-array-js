@@ -376,6 +376,12 @@ class GPUBackend {
         };
     }
 
+    #destroyOnDone(...arrays){
+        this.device.queue.onSubmittedWorkDone().then(() => {
+            arrays.forEach(a => a?.gpu.destroy());
+        });
+    }
+
     /**
      * Execute GPU Computation
      * @param {GPUShaderModule} shader
@@ -494,11 +500,7 @@ class GPUBackend {
         );
 
         this.execute(shader, execute_buffers, [Math.ceil(out.length / size)]);
-        this.device.queue.onSubmittedWorkDone().then(() => {
-            lhs_strides?.gpu.destroy();
-            rhs_strides?.gpu.destroy();
-            out_strides?.gpu.destroy();
-        });
+        this.#destroyOnDone(lhs_strides, rhs_strides, out_strides);
         return out;
     }
 
@@ -603,11 +605,7 @@ class GPUBackend {
         );
 
         this.execute(shader, execute_buffers, [Math.ceil(out.length / size)]);
-        this.device.queue.onSubmittedWorkDone().then(() => {
-            arg0_strides?.gpu.destroy();
-            arg1_strides?.gpu.destroy();
-            out_strides?.gpu.destroy();
-        });
+        this.#destroyOnDone(arg0_strides, arg1_strides, out_strides);
         return out;
     }
 
