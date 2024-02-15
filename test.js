@@ -117,7 +117,8 @@ const Run = async (f, result, detail) => {
         result.val = true;
     } catch(e){
         result.val = false;
-        detail.val = `${e.name}: ${e.message}`;
+        detail.val = `${e.name}: ${e.message}
+${e.stack}`;
     }
 }
 
