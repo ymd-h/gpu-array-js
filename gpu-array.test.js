@@ -51,6 +51,29 @@ TEST("Array Creation", [
 ]);
 
 
+TEST("Array Op", [
+    ["set()", async () => {
+        const a = gpu.Array();
+        assertFalsy(a.cpu_dirty);
+        a.set(1, 0);
+        assertTruthy(a.cpu_dirty);
+    }],
+    ["send()", async () => {
+        const a = gpu.full(2, { shape: [3, 4] });
+        assertTruthy(a.cpu_dirty);
+        a.send();
+        assertFalsy(a.cpu_dirty);
+    }],
+    ["reshape()", async () => {
+        const a = gpu.full(1, { shape: [2, 3] });
+        assertEqual(a.shape, [2, 3]);
+        a.reshape([3, 2]);
+        assertEqual(a.shape, [3, 2]);
+        assertThrow(() => a.reshape([5, 5]));
+    }],
+]);
+
+
 TEST("Operator", [
     ["a + b", async () => {
         const a = gpu.full(2, { shape: [2, 2] });
