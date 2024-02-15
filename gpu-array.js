@@ -301,6 +301,43 @@ class GPUBackend {
         return a;
     }
 
+    /**
+     * Create Range NDArray
+     * {{start: number?, stop: number, step: number?}} range
+     * {ArrayOptions} options
+     */
+    arange({ start, stop, step }, options){
+        if(stop === undefined){
+            throw new Error(`stop is required`);
+        }
+
+        start ??= 0;
+
+        step ??= 1;
+        if(step === 0){
+            throw new Error(`step === 0 is not allowed`);
+        }
+
+        const cond = step > 0 ? (v => v < stop) : (v => v > stop);
+
+        const range = [];
+        for(let i = 0; true; i++){
+            const v = start + i * step;
+            if(!cond(v)){ break; }
+
+            range.push(v);
+        }
+
+        const a = this.Array({ dtype: "i32", shape: range.length, ...options });
+        if(range.length !== a.length){
+            throw new Error(`Incompatible shape`);
+        }
+
+        a.cpu.set(range);
+        a.cpu_dirty = true;
+        return a;
+    }
+
     #stridesBuffer(strides){
         this.assertLost();
         const buffer = this.device.createBuffer({
