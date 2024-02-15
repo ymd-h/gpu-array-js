@@ -55,8 +55,41 @@ console.log(await c.get(1, 1));
 // console.log(c.get_without_load(1, 1));
 ```
 
-## Features
+## API
+### Types
+- `@typedef {Object} AdapterOptions`
+  - `@property {"low-power" | "high-performance" | "undefined"} powerPreference`
+- `@typedef {Object} DeviceOptions`
+  - `@property {{label: string} | undefined} defaultQueue`
+  - `@property {string?} label`
+  - `@property {string[] | undefined} requiredFeatures`
+  - `@property {Object.<string, *>} requiredLimits`
+- `@typedef {Object} GPUOptions`
+  - `@property {AdapterOptions?} adapter`
+  - `@property {DeviceOptions?} device`
+- `@typedef {"i32" | "u32" | "f16" | "f32"} DType`
+- `@typedef {Object} ArrayOptions`
+  - `@property {number | number[] | undefined} shape`
+  - `@property {Dtype?} dtype`
+  - `@property {number | number[] | undefined} strides`
+- `@typedef {Object} RangeOptions`
+  - `@property {number?} start`
+  - `@property {number?} step`
+
+
+### Exported (Free) Function
+- `createGPU(options: GPUOptions?): Promise<GPUBackend>`
+
+
+### Array Creation
+- `GPUBackend.Array(options: ArrayOptions?): NDArray`
+- `GPUBackend.ones(options: ArrayOptions?): NDArray`
+- `GPUBackend.full(value: number, options: ArrayOptions?): NDArray`
+- `GPUBackend.arange(range: RangeOptions, options: ArrayOptions?): NDArray`
+
+
 ### Predefined Functions
+#### Element-wise (Support Broadcast)
 
 - `GPUBackend.add(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
 - `GPUBackend.sub(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
@@ -89,8 +122,15 @@ console.log(await c.get(1, 1));
 - `GPUBackend.min(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
 - `GPUBackend.pow(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
 
+#### Reduction
 
-### Custom Function for WGSL Built-in Function
+- `GPUBackend.sum(arg: NDArray): NDArray`
+- `GPUBackend.prod(arg: NDArray): NDArray`
+- `GPUBackend.minimum(arg: NDArray): NDArray`
+- `GPUBackend.maximum(arg: NDArray): NDArray`
+
+
+### Custom Element-wise Function for WGSL Built-in Function
 We don't predefine all the WGSL built-in functions,
 but you can still use them.
 
@@ -134,8 +174,6 @@ Only when the data are updated `send()` / `load()` methods acutually copy data.
 
 A lot of features still missing;
 
-- Broadcasting
-- Non Element-wise Computation (e.g. Matrix Multiplication)
+- Linear Algebra (e.g. Matrix Multiplication)
 - Non Single Element `get()` / `set()`
 - `f16` (supported by WebGPU, but no corresponding `TypedArray`)
-- Custom Strides
