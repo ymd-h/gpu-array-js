@@ -199,3 +199,23 @@ TEST("pow(a, b)", [
 ]);
 
 
+TEST("Reduction Op", [
+    ["sum (small)", async () => {
+        const a = gpu.full(2, { shape: [32] });
+        const b = gpu.sum(a);
+        await b.load();
+        assertAlmostEqual(b, [64]);
+    }],
+    ["sum (large)", async () => {
+        const a = gpu.full(2, { shape: [300] });
+        const b = gpu.sum(a);
+        await b.load();
+        assertAlmostEqual(b, [600]);
+    }],
+    ["prod", async () => {
+        const a = gpu.full(2, { shape: [4] });
+        const b = gpu.prod(a);
+        await b.load();
+        assertAlmostEqual(b, [16]);
+    }],
+]);
