@@ -252,7 +252,7 @@ class GPUBackend {
                     throw new Error(m);
                     break;
                 case "warning":
-                    console.warning(m);
+                    console.warn(m);
                     break;
                 case "info":
                     console.log(m);
