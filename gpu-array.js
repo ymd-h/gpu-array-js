@@ -35,6 +35,11 @@ import {
  * @property {DType?} dtype
  * @property {number | number[] | undefined} strides
  *
+ * @typedef {Object} RangeOptions
+ * @property {number?} start
+ * @property {number} stop
+ * @property {number?} step
+ *
  * @typedef {Object} Layout
  * @property {GPUBindGroupLayout} bindGroup
  * @property {GPUPipelineLayout} pipeline
@@ -322,7 +327,7 @@ class GPUBackend {
 
     /**
      * Create Range NDArray
-     * @param {{start: number?, stop: number, step: number?}} range
+     * @param {RangeOptions} range
      * @param {ArrayOptions?} options
      */
     arange({ start, stop, step }, options){
