@@ -83,6 +83,14 @@ TEST("Operator", [
         assertEqual(c.dtype, "f32");
         assertAlmostEqual(c, [3.3]);
     }],
+    ["a + b (Broadcast)", async () => {
+        const a = gpu.full(1.7, { shape: [2, 3] });
+        const b = gpu.full(0.3);
+        const c = gpu.add(a, b);
+        await c.load();
+        assertEqual(c.length, 6);
+        assertAlmostEqual(c, [2, 2, 2, 2, 2, 2]);
+    }],
 ]);
 
 TEST("f(a)", [
