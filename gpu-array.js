@@ -228,6 +228,7 @@ class GPUBackend {
 
         const pipelineLayout = this.device.createPipelineLayout({
             bindGroupLayouts: [bindGroupLayout],
+            label: `PipelineLayout-${key}`,
         });
 
         const L = { bindGroupLayout, pipelineLayout };
