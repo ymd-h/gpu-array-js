@@ -14,9 +14,9 @@ const TEST_CONFIG = {
 };
 
 
-const almostEqual = (x, y, atol, rtol) => {
-    atol ??= 1e-6;
-    rtol ??= 1e-5;
+const almostEqual = (x, y, tol) => {
+    const atol = tol?.atol ?? 1e-6;
+    const rtol = tol?.rtol ?? 1e-5;
 
     if(Object.is(x, y)){
         return true;
@@ -32,7 +32,7 @@ const almostEqual = (x, y, atol, rtol) => {
     return false;
 };
 
-const assertAlmostEqual = (x, y, atol, rtol) => {
+const assertAlmostEqual = (x, y, tol) => {
     if((x[Symbol.iterator] !== undefined) && (y[Symbol.iterator] !== undefined)){
         const xit = x[Symbol.iterator]();
         const yit = y[Symbol.iterator]();
@@ -49,11 +49,11 @@ const assertAlmostEqual = (x, y, atol, rtol) => {
                 throw new Error(`Fail Almost Equal: Wrong Length`);
             }
 
-            assertAlmostEqual(xvalue, yvalue, atol, rtol);
+            assertAlmostEqual(xvalue, yvalue, tol);
         }
     }
 
-    if(!almostEqual(x, y, atol, rtol)){
+    if(!almostEqual(x, y, tol)){
         throw new Error(`Fail Almost Equal: ${x} !~ ${y}`);
     }
 };
