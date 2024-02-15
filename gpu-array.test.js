@@ -219,3 +219,19 @@ TEST("Reduction Op", [
         assertAlmostEqual(b, [16]);
     }],
 ]);
+
+
+TEST("Reduce Func", [
+    ["maximum (small)", async () => {
+        const a = gpu.arange({ stop: 5 }, { dtype: "f32" });
+        const b = gpu.maximum(a);
+        await b.load();
+        assertAlmostEqual(b, [4]);
+    }],
+    ["maximum (large)", async () => {
+        const a = gpu.arange({ stop: 200 }, { dtype: "f32" });
+        const b = gpu.maximum(a);
+        await b.load();
+        assertAlmostEqual(b, [199]);
+    }],
+]);
