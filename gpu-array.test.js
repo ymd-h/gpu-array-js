@@ -29,6 +29,61 @@ const arrayEach = (f, ...args) => {
     }
 };
 
+TEST("Array Creation", [
+    ["ones", async () => {
+        const a = gpu.ones({ shape: [2, 2] });
+        assertEqual(a.length, 4);
+        assertAlmostEqual(await a.get(0, 0), 1);
+        assertAlmostEqual(await a.get(0, 1), 1);
+        assertAlmostEqual(await a.get(1, 0), 1);
+        assertAlmostEqual(await a.get(1, 1), 1);
+    }],
+    ["full", async () => {
+        const a = gpu.full(2);
+        assertEqual(a.length, 1);
+        assertAlmostEqual(await a.get(0), 2);
+    }],
+    ["arange", async () => {
+        const a = gpu.arange({ stop: 3 });
+        assertEqual(a.length, 3);
+        assertAlmostEqual(await a.get(0), 0);
+        assertAlmostEqual(await a.get(1), 1);
+        assertAlmostEqual(await a.get(2), 2);
+    }],
+]);
+
+
+TEST("Operator", [
+    ["a + b", async () => {
+        const a = gpu.full(2, { shape: [2, 2] });
+        const b = gpu.arange({ stop: 4 }, { shape: [2, 2] });
+        const c = gpu.add(a, b);
+        await c.load();
+        assertAlmostEqual(c, [2, 3, 4, 5]);
+    }],
+    ["a - b", async () => {
+        const a = gpu.full(2, { shape: [2, 2] });
+        const b = gpu.arange({ stop: 4 }, { shape: [2, 2], dtype: "f32" });
+        const c = gpu.sub(a, b);
+        await c.load();
+        assertAlmostEqual(c, [2, 1, 0, -1]);
+    }],
+    ["a * b", async () => {
+        const a = gpu.full(2, { shape: [2, 2] });
+        const b = gpu.arange({ stop: 4 }, { shape: [2, 2], dtype: "f32" });
+        const c = gpu.mul(a, b);
+        await c.load();
+        assertAlmostEqual(c, [0, 2, 4, 6]);
+    }],
+    ["a / b", async () => {
+        const a = gpu.full(2, { shape: [2, 2] });
+        const b = gpu.arange({ stop: 4 }, { shape: [2, 2], dtype: "f32" });
+        const c = gpu.div(a, b);
+        await c.load();
+        assertAlmostEqual(c, [2/0, 2, 1, 2/3]);
+    }],
+]);
+
 
 const a = gpu.Array({ shape: [N, N] });
 const b = gpu.Array({ shape: [N, N] });
