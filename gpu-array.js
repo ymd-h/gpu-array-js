@@ -4,7 +4,7 @@ import {
     vector_op, vector_op_indirect,
     func1,
     func2, func2_indirect,
-    reduce_op,
+    reduce_op, reduce_func,
 } from "./shader.js";
 
 
@@ -188,6 +188,14 @@ class GPUBackend {
         ];
         for(const [name, op] of red_op){
             this[name] = (arg) => this._reduce_op(op, arg);
+        }
+
+        const red_f = [
+            ["minimum", "min"],
+            ["maximum", "max"],
+        ];
+        for(const [name, f] of red_f){
+            this[name] = (arg) => this._reduce_func(f, arg);
         }
     }
 
@@ -612,6 +620,42 @@ class GPUBackend {
             const shader = this.createShader(
                 reduce_op(
                     op, length,
+                    {binding: 0, type: arg.dtype, conv: ""},
+                    {binding: 1, type: out.dtype, conv: ""},
+                ),
+            );
+
+            this.execute(
+                shader,
+                [
+                    {array: arg, mode: "read-only"},
+                    {array: out, mode: "write-only"},
+                ],
+                [1],
+            );
+
+            if(length === 1){
+                return out;
+            }
+
+            arg = out;
+        }
+    }
+
+    _reduce_func(f, arg){
+        if(arg.custom_strides){
+            throw new Error(`Reduce Func hasn't supported custom strides yet`);
+        }
+
+        while(true){
+            const length = (arg.length > 64) ?
+                  (1 << (Math.floor(Math.log2(arg.length)) -1)):
+                  1;
+            const out = this.Array({ shape: length, dtype: arg.dtype });
+
+            const shader = this.createShader(
+                reduce_func(
+                    f, length,
                     {binding: 0, type: arg.dtype, conv: ""},
                     {binding: 1, type: out.dtype, conv: ""},
                 ),
