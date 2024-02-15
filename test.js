@@ -59,7 +59,27 @@ const assertAlmostEqual = (x, y, atol, rtol) => {
 };
 
 const assertEqual = (x, y) => {
-    if(x !== y){
+    if((x[Symbol.iterator] !== undefined) && (y[Symbol.iterator] !== undefined)){
+        const xit = x[Symbol.iterator]();
+        const yit = y[Symbol.iterator]();
+
+        while(true){
+            let { value: xvalue, done: xdone } = xit.next();
+            let { value: yvalue, done: ydone } = yit.next();
+
+            xdone ??= false;
+            ydone ??= false;
+
+            if(xdone && ydone){ return; }
+            if(xdone ^ ydone){
+                throw new Error(`Fail Equal: Wrong Length`);
+            }
+
+            assertEqual(xvalue, yvalue);
+        }
+    }
+
+    if((x !== y) && !(Number.isNaN(x) && Number.isNaN(y))){
         throw new Error(`Fail Equal: ${x} !== ${y}`);
     }
 };
