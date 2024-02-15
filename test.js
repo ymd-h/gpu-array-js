@@ -124,8 +124,15 @@ const TestCase = ([name, f], result) => {
 
 const TEST = (summaryLine, cases) => {
     const results = cases.map(() => van.state(null));
+    const sall = van.derive(() => {
+        return results.every(r => r.val) ?
+            TEST_CONFIG.success.val:
+            TEST_CONFIG.failure.val;
+    });
+    const scount = van.derive(() => results.reduce((a, r) => r.val + a, 0));
+
     const test = details(
-        summary(() => `${summaryLine}: ${results.reduce((a, r) => r.val + a, 0)} / ${cases.length}`),
+        summary(() => `${sall.val}: ${summaryLine}: ${scount.val} / ${cases.length}`),
         table(
             thead(tr(
                 th({scope: "col"}, "name"),
