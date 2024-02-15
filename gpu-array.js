@@ -812,6 +812,13 @@ class NDArray {
 
         throw new Error(`Not Implemented yet`);
     }
+
+    [Symbol.iterator](){
+        if(this.gpu_dirty){
+            console.warn(`There are unloaded data at GPU`);
+        }
+        return this.cpu[Symbol.iterator]();
+    }
 };
 
 
