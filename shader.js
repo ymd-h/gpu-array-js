@@ -139,8 +139,32 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 `;
 
 
+const reduce_op = (op, size, arg, out) => `
+@group(0) @binding(${arg.binding})
+var<storage, read> arg: array<${arg.type}>;
+
+@group(0) @binding(${out.binding})
+var<storage, read_write> out: array<${out.type}>;
+
+@compute @workgroup_size(${size})
+fn main(@builtin(global_invocation_id) id: vec3<u32>){
+    if(id.x >= arrayLength(&out)){ return; }
+
+    let N: u32 = arrayLength(&arg);
+    let size: u32 = ${size};
+    var v = arg[id.x];
+    for(var i = id.x + size; i < N; i += size){
+        v = v ${op} arg[i];
+    }
+
+    out[id.x] = ${out.conv}(v);
+}
+`;
+
+
 export {
     vector_op, vector_op_indirect,
     func1,
     func2, func2_indirect,
+    reduce_op,
 };
