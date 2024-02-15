@@ -287,7 +287,7 @@ class GPUBackend {
 
     /**
      * Create NDArray
-     * @param {ArrayOptions} options
+     * @param {ArrayOptions?} options
      * @returns {NDArray}
      */
     Array(options){
@@ -297,7 +297,7 @@ class GPUBackend {
 
     /**
      * Create NDArray filled with 1
-     * @param {ArrayOptions} options
+     * @param {ArrayOptions?} options
      * @returns {NDArray}
      */
     ones(options){
@@ -310,7 +310,7 @@ class GPUBackend {
     /**
      * Create NDArray filled with value
      * @param {number} value
-     * @param {ArrayOptions} options
+     * @param {ArrayOptions?} options
      * @returns {NDArray}
      */
     full(value, options){
@@ -322,8 +322,8 @@ class GPUBackend {
 
     /**
      * Create Range NDArray
-     * {{start: number?, stop: number, step: number?}} range
-     * {ArrayOptions} options
+     * @param {{start: number?, stop: number, step: number?}} range
+     * @param {ArrayOptions?} options
      */
     arange({ start, stop, step }, options){
         if(stop === undefined){
