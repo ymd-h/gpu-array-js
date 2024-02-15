@@ -2,6 +2,7 @@ import van from "https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-latest.min
 
 const {
     div, pre,
+    details, summary,
     table, thead, tbody, tr, th, td,
 } = van.tags;
 
@@ -53,8 +54,7 @@ const Run = async (f, result, detail) => {
     }
 }
 
-const TestCase = ([name, f]) => {
-    const result = van.state(null);
+const TestCase = ([name, f], result) => {
     const detail = van.state("");
 
     Run(f, result, detail);
@@ -76,16 +76,20 @@ const TestCase = ([name, f]) => {
     );
 };
 
-const TEST = cases => {
-    const summary = table(
-        thead(tr(
-            th({scope: "col"}, "name"),
-            th({scope: "col"}, "result"),
-            th({scope: "col"}, "detail"))),
-        tbody(cases.map(TestCase)),
+const TEST = (summaryLine, cases) => {
+    const results = cases.map(() => van.state(null));
+    const test = details(
+        summary(() => `${summaryLine}: ${results.reduce((a, r) => r.val + a, 0)} / ${cases.length}`),
+        table(
+            thead(tr(
+                th({scope: "col"}, "name"),
+                th({scope: "col"}, "result"),
+                th({scope: "col"}, "detail"))),
+            tbody(cases.map((c, i) => TestCase(c, results[i]))),
+        ),
     );
 
-    van.add(document.body, summary);
+    van.add(document.body, test);
 };
 
 
