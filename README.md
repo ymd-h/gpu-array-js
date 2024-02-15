@@ -173,7 +173,7 @@ Only when the data are updated `send()` / `load()` methods acutually copy data.
 
 ## Limitations
 
-A lot of features still missing;
+A lot of features are still missing;
 
 - Linear Algebra (e.g. Matrix Multiplication)
 - Non Single Element `get()` / `set()`
