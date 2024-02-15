@@ -1,4 +1,4 @@
-# GPU Array
+# gpu-array.js: NDArray on WebGPU
 
 > [!CAUTION]
 > This repository is under development, and might not work.
