@@ -33,6 +33,26 @@ const almostEqual = (x, y, atol, rtol) => {
 };
 
 const assertAlmostEqual = (x, y, atol, rtol) => {
+    if((x[Symbol.iterator] !== undefined) && (y[Symbol.iterator] !== undefined)){
+        const xit = x[Symbol.iterator]();
+        const yit = y[Symbol.iterator]();
+
+        while(true){
+            let { value: xvalue, done: xdone } = xit.next();
+            let { value: yvalue, done: ydone } = yit.next();
+
+            xdone ??= false;
+            ydone ??= false;
+
+            if(xdone && ydone){ return; }
+            if(xdone ^ ydone){
+                throw new Error(`Fail Almost Equal: Wrong Length`);
+            }
+
+            assertAlmostEqual(xvalue, yvalue, atol, rtol);
+        }
+    }
+
     if(!almostEqual(x, y, atol, rtol)){
         throw new Error(`Fail Almost Equal: ${x} !~ ${y}`);
     }
