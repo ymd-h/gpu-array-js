@@ -74,6 +74,7 @@ console.log(await c.get(1, 1));
   - `@property {number | number[] | undefined} strides`
 - `@typedef {Object} RangeOptions`
   - `@property {number?} start`
+  - `@property {number} stop`
   - `@property {number?} step`
 
 
