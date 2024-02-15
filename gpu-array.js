@@ -575,14 +575,7 @@ class NDArray {
         let { shape, dtype, strides } = options ?? {};
 
         // shape
-        shape ??= [1];
-        if(typeof shape === "number"){
-            shape = [shape];
-        }
-        if(shape.some(s => s <= 0)){
-            throw new Error(`shape must be positive: [${shape.join()}]`);
-        }
-        this.shape = shape.map(s => s | 0);
+        this.shape = this.#ensure_shape(shape);
 
         // strides
         /** @type {bool} */
@@ -643,6 +636,35 @@ class NDArray {
         });
 
         this.#load_promise = null;
+    }
+
+    #ensure_shape(shape){
+        shape ??= [1];
+        if(typeof shape === "number"){
+            shape = [shape];
+        }
+        if(shape.some(s => s <= 0)){
+            throw new Error(`shape must be positive: [${shape.join()}]`);
+        }
+        return shape.map(s => s | 0);
+    }
+
+    /**
+     * Reshape
+     * @param {number | number[] | undefined} shape
+     */
+    reshape(shape){
+        if(this.custom_strides){
+            throw new Error(`reshape() is not supported with custom strides`);
+        }
+        shape = this.#ensure_shape(shape);
+
+        if(shape.reduce((a, s) => a * s, 1) !== this.length){
+            const s1 = this.shape.join(",");
+            const s2 = shape.join(",");
+            throw new Error(`Reshape with incompatible shape: [${s1}] -> [${s2}]`);
+        }
+        this.shape = shape;
     }
 
     /**
