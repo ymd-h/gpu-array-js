@@ -440,6 +440,12 @@ class GPUBackend {
         this.device.queue.submit([cmd.finish()]);
     }
 
+    /**
+     * @returns {number}
+     */
+    get sizeX(){
+        return this.device.limits.maxComputeWorkgroupSizeX;
+    }
 
     _vector_op(op, lhs, rhs, out){
         const dtype = (lhs.dtype === rhs.dtype) ?
@@ -447,7 +453,7 @@ class GPUBackend {
               promoteType(lhs.dtype, rhs.dtype);
 
         out ??= this.Array({ shape: broadcastShapes(lhs.shape, rhs.shape), dtype });
-        const size = this.device.limits.maxComputeWorkgroupSizeX;
+        const size = this.sizeX;
 
         if(out.custom_strides){
             throw new Error(`Custom Strides for out is not supported`);
@@ -508,7 +514,7 @@ class GPUBackend {
 
     _func1(f, arg, out){
         out ??= this.Array({ shape: arg.shape, dtype: arg.dtype });
-        const size = this.device.limits.maxComputeWorkgroupSizeX;
+        const size = this.sizeX;
 
         if(out.custom_strides){
             throw new Error(`Custom Strides for out is not supported`);
@@ -548,7 +554,7 @@ class GPUBackend {
               promoteType(arg0.dtype, arg1.dtype);
 
         out ??= this.Array({ shape: broadcastShapes(arg0.shape, arg1.shape), dtype });
-        const size = this.device.limits.maxComputeWorkgroupSizeX;
+        const size = this.sizeX;
 
         if(out.custom_strides){
             throw new Error(`Custom Strides for out is not supported`);
