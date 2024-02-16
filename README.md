@@ -177,7 +177,6 @@ A lot of features are still missing;
 
 - Linear Algebra (e.g. Matrix Multiplication)
 - Non Single Element `get()` / `set()`
-- `f16` (supported by WebGPU, but no corresponding `TypedArray`)
 
 
 ## 5. Dependencies
