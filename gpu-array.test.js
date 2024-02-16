@@ -235,3 +235,26 @@ TEST("Reduce Func", [
         assertAlmostEqual(b, [199]);
     }],
 ]);
+
+
+TEST("f16", [
+    ["basic", async () => {
+        const a = gpu.Array({ dtype: "f16" });
+        a.set(1.2, 0);
+        assertAlmostEqual(a, [1.2], { rtol: 1e-3 });
+    }],
+    ["add", async () => {
+        const a = gpu.ones({ shape: [2], dtype: "f16" });
+        const b = gpu.arange({ stop: 2 }, { dtype: "f16" });
+        const c = gpu.add(a, b);
+        await c.load();
+        assertAlmostEqual(c, [1, 2]);
+    }],
+    ["Type Promotion", async () => {
+        const a = gpu.full(2.0, { shape: [2] });
+        const b = gpu.full(2.0, { shape: [2], dtype: "f16" });
+        const c = gpu.mul(a, b);
+        await c.load();
+        assertAlmostEqual(c, [4, 4]);
+    }],
+]);
