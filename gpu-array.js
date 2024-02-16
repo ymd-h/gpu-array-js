@@ -54,6 +54,10 @@ import {
  * @returns {string}
  */
 const promoteType = (t1, t2) => {
+    if(t1 === t2){
+        return t1;
+    }
+
     if((t1 === "f32") || (t2 === "f32")){
         return "f32";
     }
@@ -448,9 +452,7 @@ class GPUBackend {
     }
 
     _vector_op(op, lhs, rhs, out){
-        const dtype = (lhs.dtype === rhs.dtype) ?
-              lhs.dtype :
-              promoteType(lhs.dtype, rhs.dtype);
+        const dtype = promoteType(lhs.dtype, rhs.dtype);
 
         out ??= this.Array({ shape: broadcastShapes(lhs.shape, rhs.shape), dtype });
         const size = this.sizeX;
@@ -549,9 +551,7 @@ class GPUBackend {
     }
 
     _func2(f, arg0, arg1, out){
-        const dtype = (arg0.dtype === arg1.dtype) ?
-              arg0.dtype :
-              promoteType(arg0.dtype, arg1.dtype);
+        const dtype = promoteType(arg0.dtype, arg1.dtype);
 
         out ??= this.Array({ shape: broadcastShapes(arg0.shape, arg1.shape), dtype });
         const size = this.sizeX;
