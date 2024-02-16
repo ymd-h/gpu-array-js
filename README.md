@@ -13,7 +13,7 @@ This JavaScript PoC code provides NDArray
 
 
 
-## Example Usage
+## 1. Example Usage
 
 ```javascript
 import { createGPU } from "https://cdn.jsdelivr.net/gh/ymd-h/gpu-array-js/gpu-array.js";
@@ -55,8 +55,8 @@ console.log(await c.get(1, 1));
 // console.log(c.get_without_load(1, 1));
 ```
 
-## API
-### Types
+## 2. API
+### 2.1 Types
 - `@typedef {Object} AdapterOptions`
   - `@property {"low-power" | "high-performance" | "undefined"} powerPreference`
 - `@typedef {Object} DeviceOptions`
@@ -78,19 +78,19 @@ console.log(await c.get(1, 1));
   - `@property {number?} step`
 
 
-### Exported (Free) Function
+### 2.2 Exported (Free) Function
 - `createGPU(options: GPUOptions?): Promise<GPUBackend>`
 
 
-### Array Creation
+### 2.3 Array Creation
 - `GPUBackend.Array(options: ArrayOptions?): NDArray`
 - `GPUBackend.ones(options: ArrayOptions?): NDArray`
 - `GPUBackend.full(value: number, options: ArrayOptions?): NDArray`
 - `GPUBackend.arange(range: RangeOptions, options: ArrayOptions?): NDArray`
 
 
-### Predefined Functions
-#### Element-wise (Support Broadcast)
+### 2.4 Predefined Functions
+#### 2.4.1 Element-wise (Support Broadcast)
 
 - `GPUBackend.add(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
 - `GPUBackend.sub(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
@@ -123,7 +123,7 @@ console.log(await c.get(1, 1));
 - `GPUBackend.min(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
 - `GPUBackend.pow(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
 
-#### Reduction
+#### 2.4.2 Reduction
 
 - `GPUBackend.sum(arg: NDArray): NDArray`
 - `GPUBackend.prod(arg: NDArray): NDArray`
@@ -131,7 +131,7 @@ console.log(await c.get(1, 1));
 - `GPUBackend.maximum(arg: NDArray): NDArray`
 
 
-### Custom Element-wise Function for WGSL Built-in Function
+### 2.5 Custom Element-wise Function for WGSL Built-in Function
 We don't predefine all the WGSL built-in functions,
 but you can still use them.
 
@@ -143,7 +143,7 @@ cf. [WGSL Numeric Built-in Functions](https://gpuweb.github.io/gpuweb/wgsl/#nume
 `f` is a built-in function name.
 
 
-### Custom Function from Scratch
+### 2.6 Custom Function from Scratch
 > [!WARNING]
 > This API is not user friendly, nor intended to use.
 
@@ -153,9 +153,9 @@ cf. [WGSL Numeric Built-in Functions](https://gpuweb.github.io/gpuweb/wgsl/#nume
 
 `dispatch` are number of GPU workgroups of X, Y, Z. 1 <= `dispatch.length` <= 3.
 
-## Design
+## 3. Design
 
-### Template-based Shader
+### 3.1 Template-based Shader
 In my [previous work](https://github.com/ymd-h/vulkpy),
 shader management was [one of the biggest problems](https://github.com/ymd-h/vulkpy/issues/2).
 Here, we try to implement type agnostic compute shaders in [shader.js](https://github.com/ymd-h/gpu-array-js/blob/master/shader.js).
@@ -164,14 +164,14 @@ Moreover, similar computations (e.g. `a + b` and `a - b`, etc.) are generated
 from single template.
 
 
-### Update Tracking
+### 3.2 Update Tracking
 CPU-side and GPU-side data updates are tracked with `.cpu_dirty` and `.gpu_dirty`
 properties of `NDArray`.
 Only when the data are updated `send()` / `load()` methods acutually copy data.
 
 
 
-## Limitations
+## 4. Limitations
 
 A lot of features are still missing;
 
