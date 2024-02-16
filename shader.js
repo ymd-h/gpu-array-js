@@ -1,6 +1,11 @@
 /** @module shader */
 
+const f16 = (...arrays) => {
+    return arrays.some(a => a.type === "f16") ? "enable f16;" : "";
+};
+
 const vector_op = (op, size, lhs, rhs, out) => `
+${f16(lhs, rhs, out)}
 @group(0) @binding(${lhs.binding})
 var<storage, read> lhs: array<${lhs.type}>;
 
@@ -23,6 +28,7 @@ const vector_op_indirect = (
     lhs, rhs, out,
     lhs_strides, rhs_strides, out_strides,
 ) => `
+${f16(lhs, rhs, out)}
 @group(0) @binding(${lhs.binding})
 var<storage, read> lhs: array<${lhs.type}>;
 
@@ -65,6 +71,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 
 const func1 = (f, size, arg, out) => `
+${f16(arg, out)}
 @group(0) @binding(${arg.binding})
 var<storage, read> arg: array<${arg.type}>;
 
@@ -80,6 +87,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 `;
 
 const func2 = (f, size, args, out) => `
+${f16(...args, size)}
 @group(0) @binding(${args[0].binding})
 var<storage, read> arg0: array<${args[0].type}>;
 
@@ -98,6 +106,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 `;
 
 const func2_indirect = (f, size, args, out, args_strides, out_strides) => `
+${f16(...args, out)}
 @group(0) @binding(${args[0].binding})
 var<storage, read> arg0: array<${args[0].type}>;
 
@@ -140,6 +149,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 
 const reduce_op = (op, size, arg, out) => `
+${f16(arg, out)}
 @group(0) @binding(${arg.binding})
 var<storage, read> arg: array<${arg.type}>;
 
@@ -163,6 +173,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 
 const reduce_func = (f, size, arg, out) => `
+${f16(arg, out)}
 @group(0) @binding(${arg.binding})
 var<storage, read> arg: array<${arg.type}>;
 

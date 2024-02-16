@@ -927,23 +927,29 @@ class NDArray {
  */
 const createGPU = async (options) => {
     options ??= {};
-    const { adapter, device } = options;
+    let { adapter, device } = options;
 
     const a = await navigator?.gpu?.requestAdapter(adapter)
     if(a === undefined){
         throw new Error(`No Available GPU Adapter`);
     }
-    a.requestAdapterInfo().then(i => {
-        console.log(`GPU Adapter
+
+    const i = await a.requestAdapterInfo();
+    console.log(`GPU Adapter
   vendor      : ${i.vendor}
   architecture: ${i.architecture}
   device      : ${i.device}
   description : ${i.description}`);
 
-        console.log(["GPU Supported Features", ...a.features.keys()].join("\n  "));
-        console.table(a.limits);
-    });
+    console.log(["GPU Supported Features", ...a.features.keys()].join("\n  "));
+    console.table(a.limits);
 
+    device ??= {};
+    const f16 = "shader-f16";
+    if(a.features.has(f16) && !device.requiredFeatures?.includes(f16)){
+        console.log(`${f16} is added.`);
+        device["requiredFeatures"] = [f16, ...device["requiredFeatures"] ?? []];
+    }
 
     const d = await a.requestDevice(device);
     if(d === undefined){
