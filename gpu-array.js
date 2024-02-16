@@ -1,5 +1,7 @@
 /** @module gpu-array */
 
+import { Float16Array } from "https://cdn.jsdelivr.net/npm/@petamoriken/float16/+esm";
+
 import {
     vector_op, vector_op_indirect,
     func1,
@@ -745,7 +747,7 @@ class NDArray {
         switch(this.dtype){
         case "f16":
             this.itemsize = 2;
-            throw new Error(`f16 hasn't been supported yet`);
+            this.cpu = new Float16Array(this.length);
             break;
         case "f32":
             this.cpu = new Float32Array(this.length);

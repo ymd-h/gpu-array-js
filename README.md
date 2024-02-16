@@ -178,3 +178,8 @@ A lot of features are still missing;
 - Linear Algebra (e.g. Matrix Multiplication)
 - Non Single Element `get()` / `set()`
 - `f16` (supported by WebGPU, but no corresponding `TypedArray`)
+
+
+## 5. Dependencies
+- [petamoriken/float16](https://github.com/petamoriken/float16) (MIT License)
+  - For `Float16Array`. Once [this proposal](https://github.com/tc39/proposal-float16array) (Stage 3) become available, we will replace.
