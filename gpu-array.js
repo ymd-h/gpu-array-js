@@ -624,7 +624,7 @@ class GPUBackend {
 
         while(true){
             const length = (arg.length > 64) ?
-                  (1 << (Math.floor(Math.log2(arg.length)) -1)):
+                  Math.min(1 << (Math.floor(Math.log2(arg.length)) -1), this.sizeX):
                   1;
             const out = this.Array({ shape: length, dtype: arg.dtype });
 
@@ -661,7 +661,7 @@ class GPUBackend {
 
         while(true){
             const length = (arg.length > 64) ?
-                  (1 << (Math.floor(Math.log2(arg.length)) -1)):
+                  Math.min(1 << (Math.floor(Math.log2(arg.length)) -1), this.sizeX):
                   1;
             const out = this.Array({ shape: length, dtype: arg.dtype });
 
