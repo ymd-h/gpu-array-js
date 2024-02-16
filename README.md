@@ -182,3 +182,10 @@ A lot of features are still missing;
 ## 5. Dependencies
 - [petamoriken/float16](https://github.com/petamoriken/float16) (MIT License)
   - For `Float16Array`. Once [this proposal](https://github.com/tc39/proposal-float16array) (Stage 3) become available, we will replace.
+
+
+## 6. Notes
+
+`"f16"` is supported only when GPU supports it.
+Inside `createGPU()` function, we check its supported features,
+and automatically add `"shader-f16"` to `requiredFeatures` if possible.
