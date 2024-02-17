@@ -856,8 +856,8 @@ class NDArray {
             return;
         }
 
-        // Float16Array ponyfill cannot be passed, so that we wrap it with DataView().
-        this.device.queue.writeBuffer(this.gpu, 0, new DataView(this.cpu.buffer));
+        // Float16Array ponyfill cannot be passed directly.
+        this.device.queue.writeBuffer(this.gpu, 0, this.cpu.buffer);
         this.cpu_dirty = false;
     }
 
