@@ -941,15 +941,16 @@ const createGPU = async (options) => {
         throw new Error(`No Available GPU Adapter`);
     }
 
-    const i = await a.requestAdapterInfo();
-    console.log(`GPU Adapter
+    a.requestAdapterInfo().then(i => {
+        console.log(`GPU Adapter
   vendor      : ${i.vendor}
   architecture: ${i.architecture}
   device      : ${i.device}
   description : ${i.description}`);
 
-    console.log(["GPU Supported Features", ...a.features.keys()].join("\n  "));
-    console.table(a.limits);
+        console.log(["GPU Supported Features", ...a.features.keys()].join("\n  "));
+        console.table(a.limits);
+    });
 
     device ??= {};
     const f16 = "shader-f16";
