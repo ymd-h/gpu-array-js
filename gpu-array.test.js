@@ -266,6 +266,10 @@ TEST("Xoshiro128++", [
         const u32 = prng.next();
         assertEqual(u32.dtype, "u32");
         assertEqual(u32.shape, [1]);
+
+        const a = await u32.get(0);
+        const b = await prng.next().get(0);
+        assertTruthy(a !== b);
     }],
     ["no seed", async () => {
         const prng = gpu.Xoshiro128pp({ size: 1 });
