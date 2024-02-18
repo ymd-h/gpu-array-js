@@ -203,11 +203,16 @@ const _xoshiro128pp_out = (out) => (out === undefined) ?
 
 const _xoshiro128pp_binding = (out) => (out === undefined) ?
       "" :
-      `@group(0) @binding(${out.binding}) var<storage, read_write> out: array<${out.type}>;`;
+      `
+@group(0) @binding(${out.binding})
+var<storage, read_write> out: array<${out.type}>;
+`;
 
 const _xoshiro128pp_next = (state, out) => `
-${_xoshiro128pp_binding(out)}
+@group(0) @binding(${state.binding})
+var<storage, read_write> state: array<vec4<u32>>;
 
+${_xoshiro128pp_binding(out)}
 
 fn rotl(x: u32, k: u32) -> u32 {
     return (x << k) | (x >> (32 - k));
@@ -236,9 +241,6 @@ fn next(i: u32){
 `;
 
 const xoshiro128pp = (size, state, out) => `
-@group(0) @binding(${state.binding})
-var<storage, read_write> state: array<vec4<u32>>;
-
 ${_xoshiro128pp_next(state, out)}
 
 @compute @workgroup_size(${size})
@@ -251,9 +253,6 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 
 const xoshiro128pp_init = (state) => `
-@group(0) @binding(${state.binding})
-var<storage, read_write> state: array<vec4<u32>>;
-
 ${_xoshiro128pp_next(state)}
 
 const JUMP: vec4<u32> = vec4(0x8764000b, 0xf542d2d3, 0x6fa035c3, 0x77f2db5b);
