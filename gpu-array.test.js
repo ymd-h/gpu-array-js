@@ -278,8 +278,9 @@ TEST("Xoshiro128++", [
         assertEqual(u32.shape, [1]);
     }],
     ["same seed", async () => {
-        const p1 = gpu.Xoshiro128pp({ seed: 20 });
-        const p2 = gpu.Xoshiro128pp({ seed: 20 });
+        const size = 400;
+        const p1 = gpu.Xoshiro128pp({ size, seed: 20 });
+        const p2 = gpu.Xoshiro128pp({ size, seed: 20 });
 
         const u1 = p1.next();
         const u2 = p2.next();
@@ -290,5 +291,8 @@ TEST("Xoshiro128++", [
         const f2 = p2.next("f32");
         await Promise.all([f1.load(), f2.load()]);
         assertAlmostEqual(f1, f2);
+
+        const s = gpu.sum(f1);
+        assertAlmostEqual((await s.get(0)) / f1.length, 0.5, { rtol: 0.1 });
     }],
 ]);
