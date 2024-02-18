@@ -7,6 +7,7 @@ import {
     func1,
     func2, func2_indirect,
     reduce_op, reduce_func,
+    xoshiro128pp, xoshiro128pp_init,
 } from "./shader.js";
 
 
@@ -45,6 +46,10 @@ import {
  * @typedef {Object} Layout
  * @property {GPUBindGroupLayout} bindGroup
  * @property {GPUPipelineLayout} pipeline
+ *
+ * @typedef {Object} PRNGOptions
+ * @property {number | bigint | undefined} seed
+ * @property {number?} size
  */
 
 
@@ -690,6 +695,14 @@ class GPUBackend {
             this.#destroyOnDone(out);
         }
     }
+
+    /**
+     * @param {PRNGOptions?} options
+     * @returns {Xoshiro128pp}
+     */
+    Xoshiro128pp(options){
+        return new Xoshiro128pp(this, options);
+    }
 };
 
 
@@ -923,6 +936,73 @@ class NDArray {
             console.warn(`There are unloaded data at GPU`);
         }
         return this.cpu[Symbol.iterator]();
+    }
+};
+
+
+class Xoshiro128pp {
+    /**
+     * @param {GPUBackend} backend
+     * @param {PRNGOptions?} options
+     */
+    constructor(backend, options){
+        let { seed, size } = options ?? {};
+
+        /** @type {GPUBackend} */
+        this.backend = backend;
+
+        /** @type {number} */
+        this.size = size ?? 64;
+
+        seed ??= crypto.getRandomValues(new BigUint64Array(1))[0];
+
+        // SplitMix64
+        seed = BigInt(seed) & ((2n ** 64n) -1n);
+        const state = Array.from({length: 4}, () => {
+            let z = (seed += 0x9e3779b97f4a7c15n);
+            z = (z ^ (z >> 30n)) * 0xbf58476d1ce4e5b9n;
+            z = (z ^ (z >> 27n)) * 0x94d049bb133111ebn;
+            return Number(z ^ (z >> 31n));
+        });
+
+        /** @type {NDArray} */
+        this.state = this.backend.Array({ shape: [this.size, 4], dtype: "u32" });
+        this.state.cpu.set(state);
+        this.state.cpu_dirty = true;
+
+        const shader = this.backend.createShader(xoshiro128pp_init({binding: 0}));
+        this.backend.execute(shader, [{array: this.state, mode: "read-write"}], [1]);
+    }
+
+    /**
+     * @param {"u32" | "f32"} dtype
+     * @returns {NDArray}
+     */
+    next(dtype){
+        dtype ??= "u32";
+        if(!["u32", "f32"].includes(dtype)){
+            throw new Error(`Incompatible dtype: ${dtype}`);
+        }
+
+        const out = this.backend.Array({ shape: this.size, dtype });
+
+        const size = Math.min(this.size, this.backend.sizeX);
+        const shader = this.backend.createShader(xoshiro128pp(
+            size,
+            {binding: 0},
+            {binding: 1, type: out.dtype},
+        ));
+
+        this.backend.execute(
+            shader,
+            [
+                {array: this.state, mode: "read-write"},
+                {array: out, mode: "write-only"},
+            ],
+            [Math.ceil(this.size / size)],
+        );
+
+        return out;
     }
 };
 

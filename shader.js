@@ -196,9 +196,97 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 `;
 
 
+const _xoshiro128pp_out = (out) => (out === undefined) ?
+      "" :
+      `out[i] = ${(out.type === 'f32') ? 'toFloat' : ''}(rotl(s[0] + s[3], 7) + s[0]);`;
+
+
+const _xoshiro128pp_binding = (out) => (out === undefined) ?
+      "" :
+      `@group(0) @binding(${out.binding}) var<storage, read_write> out: array<${out.type}>;`;
+
+const _xoshiro128pp_next = (state, out) => `
+${_xoshiro128pp_binding(out)}
+
+
+fn rotl(x: u32, k: u32) -> u32 {
+    return (x << k) | (x >> (32 - k));
+}
+
+fn toFloat(x: u32) -> f32 {
+    return bitcast<f32>((x >> 9) | 0x3f800000) - 1.0;
+}
+
+fn next(i: u32){
+    var s: vec4<u32> = state[i];
+    ${_xoshiro128pp_out(out)}
+
+    let t: u32 = s[1] << 9;
+
+    s[2] ^= s[0];
+    s[3] ^= s[1];
+    s[1] ^= s[2];
+    s[0] ^= s[3];
+
+    s[2] ^= t;
+    s[3] = rotl(s[3], 11);
+
+    state[i] = s;
+}
+`;
+
+const xoshiro128pp = (size, state, out) => `
+@group(0) @binding(${state.binding})
+var<storage, read_write> state: array<vec4<u32>>;
+
+${_xoshiro128pp_next(state, out)}
+
+@compute @workgroup_size(${size})
+fn main(@builtin(global_invocation_id) id: vec3<u32>){
+    if((id.x >= arrayLength(&state)) ${(out !== undefined) ? "|| (id.x >= arrayLength(&out))" : ""}){ return; }
+
+    next(id.x);
+}
+`;
+
+
+const xoshiro128pp_init = (state) => `
+@group(0) @binding(${state.binding})
+var<storage, read_write> state: array<vec4<u32>>;
+
+${_xoshiro128pp_next(state)}
+
+const JUMP: vec4<u32> = vec4(0x8764000b, 0xf542d2d3, 0x6fa035c3, 0x77f2db5b);
+
+fn jump(i: u32){
+    var s: vec4<u32> = vec4(0, 0, 0, 0);
+    for(var i: u32 = 0; i < 4; i++){
+        for(var b: u32 = 0; b < 32; b++){
+            if((JUMP[i] & (1u << b)) != 0){
+                s ^= state[i];
+            }
+            next(i);
+        }
+    }
+
+    state[i] = s;
+}
+
+@compute @workgroup_size(1)
+fn main(){
+    let n: u32 = arrayLength(&state);
+    for(var i: u32 = 1; i < n; i++){
+        state[i] = state[i-1];
+        jump(i);
+    }
+}
+`;
+
+
 export {
     vector_op, vector_op_indirect,
     func1,
     func2, func2_indirect,
     reduce_op, reduce_func,
+    xoshiro128pp, xoshiro128pp_init,
 };

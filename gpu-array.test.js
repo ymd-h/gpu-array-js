@@ -258,3 +258,33 @@ TEST("f16", [
         assertAlmostEqual(c, [4, 4]);
     }],
 ]);
+
+
+TEST("Xoshiro128++", [
+    ["u32", async () => {
+        const prng = gpu.Xoshiro128pp({ seed: 0, size: 1 });
+        const u32 = prng.next();
+        assertEqual(u32.dtype, "u32");
+        assertEqual(u32.shape, [1]);
+    }],
+    ["no seed", async () => {
+        const prng = gpu.Xoshiro128pp({ size: 1 });
+        const u32 = prng.next();
+        assertEqual(u32.dtype, "u32");
+        assertEqual(u32.shape, [1]);
+    }],
+    ["same seed", async () => {
+        const p1 = gpu.Xoshiro128pp({ seed: 20 });
+        const p2 = gpu.Xoshiro128pp({ seed: 20 });
+
+        const u1 = p1.next();
+        const u2 = p2.next();
+        await Promise.all([u1.load(), u2.load()]);
+        assertAlmostEqual(u1, u2);
+
+        const f1 = p1.next("f32");
+        const f2 = p2.next("f32");
+        await Promise.all([f1.load(), f2.load()]);
+        assertAlmostEqual(f1, f2);
+    }],
+]);
