@@ -296,3 +296,25 @@ TEST("Xoshiro128++", [
         assertAlmostEqual((await s.get(0)) / f1.length, 0.5, { rtol: 0.1 });
     }],
 ]);
+
+
+TEST("where", [
+    ["simple", async () => {
+        const c = gpu.arange({ start: 0, stop: 2 }, { dtype: "u32" });
+        const T = gpu.full(1, { shape: [2] });
+        const F = gpu.full(2, { shape: [2] });
+
+        const w = gpu.where(c, T, F);
+        await w.load();
+        assertAlmostEqual(w, [2, 1]);
+    }],
+    ["broadcast", async () => {
+        const c = gpu.arange({ start: 0, stop: 2 }, { dtype: "u32" });
+        const T = gpu.full(1, { shape: [1] });
+        const F = gpu.full(2, { shape: [1] });
+
+        const w = gpu.where(c, T, F);
+        await w.load();
+        assertAlmostEqual(w, [2, 1]);
+    }],
+]);
