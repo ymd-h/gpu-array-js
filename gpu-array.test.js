@@ -239,9 +239,9 @@ TEST("Reduce Func", [
 
 TEST("f16", [
     ["basic", async () => {
-        const a = gpu.Array({ dtype: "f16" });
+        const a = gpu.Array({ shape: [2], dtype: "f16" });
         a.set(1.2, 0);
-        assertAlmostEqual(a, [1.2], { rtol: 1e-3 });
+        assertAlmostEqual(a, [1.2, 0], { rtol: 1e-3 });
     }],
     ["add", async () => {
         const a = gpu.ones({ shape: [2], dtype: "f16" });
