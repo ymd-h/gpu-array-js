@@ -54,6 +54,29 @@ import {
 
 
 /**
+ * @param {number[][]} shapes
+ * @returns {bool}
+ */
+const equalShapes = (...shapes) => {
+    if(shapes.length <= 1){
+        return true;
+    }
+
+    const first = shapes.shift();
+
+    if(shapes.some(s => s.length !== first.length)){
+        return false;
+    }
+
+    if(shapes.some(s => s.some((si, i) => si !== first[i]))){
+        return false;
+    }
+
+    return true;
+};
+
+
+/**
  * @param {string} t1
  * @param {string} t2
  * @returns {string}
@@ -483,13 +506,9 @@ class GPUBackend {
         let rhs_strides = null;
         let out_strides = null;
 
-        const use_strides = (
-            lhs.custom_strides || rhs.custom_strides ||
-                (out.shape.length !== lhs.shape.length) ||
-                (out.shape.length !== rhs.shape.length) ||
-                lhs.shape.some((s, i) => s !== out.shape[i]) ||
-                rhs.shape.some((s, i) => s !== out.shape[i])
-        );
+        const use_strides = (lhs.custom_strides ||
+                             rhs.custom_strides ||
+                             !equalShapes(lhs.shape, rhs.shape, out.shape));
         if(use_strides){
             lhs_strides = this.#stridesBuffer(broadcastStrides(lhs, out.shape));
             rhs_strides = this.#stridesBuffer(broadcastStrides(rhs, out.shape));
@@ -530,8 +549,7 @@ class GPUBackend {
         const out_conv = (arg.dtype === out.dtype) ? "" : out.dtype;
 
         if(arg.custom_strides ||
-           arg.shape.length !== out.shape.length ||
-           arg.shape.some((s, i) => s !== out.shape[i])){
+           !equalShapes(arg.shape, out.shape)){
             throw new Error(`Broadcast is not supported`);
         }
 
@@ -569,10 +587,7 @@ class GPUBackend {
 
         const use_strides = (arg0.custom_strides ||
                              arg1.custom_strides ||
-                             arg0.shape.length !== out.shape.length ||
-                             arg1.shape.length !== out.shape.length ||
-                             arg0.shape.some((s, i) => s !== out.shape[i]) ||
-                             arg1.shape.some((s, i) => s !== out.shape[i]));
+                             !equalShapes(arg0.shape, arg1.shape, out.shape));
 
         const shader_args = [
             f, size,
