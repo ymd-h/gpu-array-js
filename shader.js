@@ -282,10 +282,55 @@ fn main(){
 `;
 
 
+const flat_index = (size, strides, index, out) => `
+@group(0) @binding(${strides.binding})
+var<storage, read> strides: array<u32>;
+
+@group(0) @binding(${index.binding})
+var<storage, read> index: array<u32>;
+
+@group(0) @binding(${out.binding})
+var<storage, read_write> out: array<u32>;
+
+@compute @workgroup_size(${size})
+fn main(@builtin(global_invocation_id) id: vec3<u32>){
+    if(id.x >= arrayLength(&out)){ return; }
+
+    let n: u32 = arrayLength(&strides);
+    var I: u32 = 0;
+    for(var i = 0; i < n; i++){
+        I += index[id.x * n + i] * strides[i];
+    }
+    out[id.x] = I;
+}
+`;
+
+const gather = (size, from, fromIndex, to, toIndex) => `
+@group(0) @binding(${from.binding})
+var<storage, read> from: array<${from.type}>;
+
+@group(0) @binding(${fromIndex.binding})
+var<storage, read> fromIndex: array<u32>;
+
+@group(0) @binding(${to.binding})
+var<storage, read_write> to: array<${to.type}>;
+
+@group(0) @binding(${toIndex.binding})
+var<storage, read> toIndex: array<u32>;
+
+@compute @workgroup_size(${size})
+fn main(@builtin(global_invocation_id) id: vec3<u32>){
+    if((id.x >= arrayLength(&fromIndex)) || (id.x >= arrayLength(&toIndex))){ return; }
+
+    to[toIndex[id.x]] = from[fromIndex[id.x]];
+}
+`;
+
 export {
     vector_op, vector_op_indirect,
     func1,
     func2, func2_indirect,
     reduce_op, reduce_func,
     xoshiro128pp, xoshiro128pp_init,
+    flat_index, gather,
 };
