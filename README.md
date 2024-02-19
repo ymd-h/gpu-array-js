@@ -179,6 +179,10 @@ A lot of features are still missing;
 - Non Single Element `get()` / `set()`
 
 
+The size of data must be multiple of 4 bytes,
+so that "f16" `NDArray` must have even elements.
+
+
 ## 5. Dependencies
 - [petamoriken/float16](https://github.com/petamoriken/float16) (MIT License)
   - For `Float16Array`. Once [this proposal](https://github.com/tc39/proposal-float16array) (Stage 3) become available, we will replace.
