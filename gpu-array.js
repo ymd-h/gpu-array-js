@@ -781,6 +781,11 @@ class NDArray {
             throw new Error(`Unknown dtype: ${dtype}`);
         }
 
+        const _size = this.length * this.itemsize;
+        if(_size % 4){
+            throw new Error(`Data Size must be multiple of 4 bytes, but ${this.itemsize} bytes x ${this.length} items = ${_size} bytes`);
+        }
+
         /** @type {GPUBuffer} */
         this.gpu = this.device.createBuffer({
             size: this.length * this.itemsize,
