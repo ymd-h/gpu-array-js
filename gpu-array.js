@@ -8,6 +8,7 @@ import {
     func2, func2_indirect,
     reduce_op, reduce_func,
     xoshiro128pp, xoshiro128pp_init,
+    where, where_indirect,
 } from "./shader.js";
 
 
@@ -709,6 +710,78 @@ class GPUBackend {
             arg = out;
             this.#destroyOnDone(out);
         }
+    }
+
+    where(cond, True, False, out){
+        out ??= this.Array({
+            shape: broadcastShapes(cond.shape, True.shape, False.shape),
+            dtype: promoteType(True.dtype, False.dtype),
+        });
+
+        if(out.custom_strides){
+            throw new Error(`Custom Strides of out is not supported.`);
+        }
+
+        const use_strides = (cond.custom_strides ||
+                             True.custom_strides ||
+                             False.custom_strides ||
+                             out.custom_strides ||
+                             !equalShapes(cond.shape,
+                                          True.shape,
+                                          False.shape,
+                                          out.shape));
+
+        const shader_args = [
+            this.sizeX,
+            {binding: 0, type: cond.dtype},
+            {binding: 1, type: True.dtype},
+            {binding: 2, type: False.dtype},
+            {binding: 3, type: out.dtype},
+        ];
+
+        const execute_buffers = [
+            {array: cond, mode: "read-only"},
+            {array: True, mode: "read-only"},
+            {array: False, mode: "read-only"},
+            {array: out, mode: "write-only"},
+        ];
+
+        let cond_strides = null;
+        let True_strides = null;
+        let False_strides = null;
+        let out_strides = null;
+
+        if(use_strides){
+            shader_args.push(
+                {binding: 4}, // cond_strides
+                {binding: 5}, // True_strides
+                {binding: 6}, // False_strides
+                {binding: 7}, // out_strides
+            );
+
+            cond_strides = this.#stridesBuffer(broadcastStrides(cond, out.strides));
+            True_strides = this.#stridesBuffer(broadcastStrides(True, out.strides));
+            False_strides = this.#stridesBuffer(broadcastStrides(False, out.strides));
+            out_strides = this.#stridesBuffer(out.strides);
+
+            execute_buffers.push(
+                {array: cond_strides, mode: "read-only"},
+                {array: True_strides, mode: "read-only"},
+                {array: False_strides, mode: "read-only"},
+                {array: out_strides, mode: "read-only"},
+            );
+        }
+
+        const shader = this.createShader(
+            use_strides ?
+                where_indirect(...shader_args) :
+                where(...shader_args)
+        );
+
+        this.execute(shader, execute_buffers, [Math.ceil(out.length / this.sizeX)]);
+        this.#destroyOnDone(cond_strides, True_strides, False_strides, out_strides);
+
+        return out;
     }
 
     /**

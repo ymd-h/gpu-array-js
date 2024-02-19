@@ -326,6 +326,91 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 }
 `;
 
+
+const where = (size, cond, True, False, out) => `
+@group(0) @binding(${cond.binding})
+var<storage, read> cond: array<${cond.type}>;
+
+@group(0) @binding(${True.binding})
+var<storage, read> True: array<${True.type}>;
+
+@group(0) @binding(${False.binding})
+var<storage, read> False: array<${False.type}>;
+
+@group(0) @binding(${out.binding})
+var<storage, read_write> out: array<${out.type}>;
+
+@compute @workgroup_size(${size})
+fn main(@builtin(global_invocation_id) id: vec3<u32>){
+    if(id.x >= arrayLength(&out)){ return; }
+
+    if(bool(cond[id.x])){
+        out[id.x] = ${out.conv ?? ""}(True[id.x]);
+    } else {
+        out[id.x] = ${out.conv ?? ""}(False[id.x]);
+    }
+}
+`;
+
+
+const where_indirect = (
+    size,
+    cond, True, False, out,
+    cond_strides, True_strides, False_strides, out_strides) => `
+@group(0) @binding(${cond.binding})
+var<storage, read> cond: array<${cond.type}>;
+
+@group(0) @binding(${True.binding})
+var<storage, read> True: array<${True.type}>;
+
+@group(0) @binding(${False.binding})
+var<storage, read> False: array<${False.type}>;
+
+@group(0) @binding(${out.binding})
+var<storage, read_write> out: array<${out.type}>;
+
+@group(0) @binding(${cond_strides.binding})
+var<storage, read> cond_strides: array<u32>;
+
+@group(0) @binding(${True_strides.binding})
+var<storage, read> True_strides: array<u32>;
+
+@group(0) @binding(${False_strides.binding})
+var<storage, read> False_strides: array<u32>;
+
+@group(0) @binding(${out_strides.binding})
+var<storage, read> out_strides: array<u32>;
+
+@compute @workgroup_size(${size})
+fn main(@builtin(global_invocation_id) id: vec3<u32>){
+    if(id.x >= arrayLength(&out)){ return; }
+
+    var O: u32 = id.x;
+    var C: u32 = 0;
+    var T: u32 = 0;
+    var F: u32 = 0;
+    for(var s: u32 = arrayLength(&out_strides) -1; s > 0; s--){
+        let iN: u32 = O % out_strides[s-1];
+        var i: u32 = iN / out_strides[s];
+        C += i * cond_strides[s];
+        T += i * True_strides[s];
+        F += i * False_strides[s];
+        O -= i;
+    }
+    var i: u32 = O / out_strides[0];
+    C += i * cond_strides[0];
+    T += i * True_strides[0];
+    F += i * False_strides[0];
+
+    if(bool(cond[C])){
+        out[id.x] = ${out.conv ?? ""}(True[T]);
+    } else {
+        out[id.x] = ${out.conv ?? ""}(False[F]);
+    }
+}
+`;
+
+
 export {
     vector_op, vector_op_indirect,
     func1,
@@ -333,4 +418,5 @@ export {
     reduce_op, reduce_func,
     xoshiro128pp, xoshiro128pp_init,
     flat_index, gather,
+    where, where_indirect,
 };
