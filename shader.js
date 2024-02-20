@@ -344,11 +344,7 @@ var<storage, read_write> out: array<${out.type}>;
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
-    if(bool(cond[id.x])){
-        out[id.x] = ${out.conv ?? ""}(True[id.x]);
-    } else {
-        out[id.x] = ${out.conv ?? ""}(False[id.x]);
-    }
+    out[id.x] = ${out.conv ?? ""}(select(${False.conv ?? ""}(False[id.x]), ${True.conv ?? ""}(True[id.x]), bool(cond[id.x])));
 }
 `;
 
@@ -402,11 +398,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
     T += i * True_strides[0];
     F += i * False_strides[0];
 
-    if(bool(cond[C])){
-        out[id.x] = ${out.conv ?? ""}(True[T]);
-    } else {
-        out[id.x] = ${out.conv ?? ""}(False[F]);
-    }
+    out[id.x] = ${out.conv ?? ""}(select(${False.conv ?? ""}(False[F]), ${True.conv ?? ""}(True[T]), bool(cond[C])));
 }
 `;
 
