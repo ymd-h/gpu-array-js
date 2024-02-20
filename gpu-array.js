@@ -759,9 +759,9 @@ class GPUBackend {
                 {binding: 7}, // out_strides
             );
 
-            cond_strides = this.#stridesBuffer(broadcastStrides(cond, out.strides));
-            True_strides = this.#stridesBuffer(broadcastStrides(True, out.strides));
-            False_strides = this.#stridesBuffer(broadcastStrides(False, out.strides));
+            cond_strides = this.#stridesBuffer(broadcastStrides(cond, out.shape));
+            True_strides = this.#stridesBuffer(broadcastStrides(True, out.shape));
+            False_strides = this.#stridesBuffer(broadcastStrides(False, out.shape));
             out_strides = this.#stridesBuffer(out.strides);
 
             execute_buffers.push(
