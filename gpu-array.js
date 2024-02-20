@@ -712,6 +712,13 @@ class GPUBackend {
         }
     }
 
+    /**
+     * @param {NDArray} cond
+     * @param {NDArray} True
+     * @param {NDArray} False
+     * @param {NDArray?} out
+     * @returns {NDArray}
+     */
     where(cond, True, False, out){
         out ??= this.Array({
             shape: broadcastShapes(cond.shape, True.shape, False.shape),
