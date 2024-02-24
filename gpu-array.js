@@ -477,7 +477,7 @@ class GPUBackend {
      * @returns {number}
      */
     get sizeX(){
-        return this.device.limits.maxComputeWorkgroupSizeX;
+        return 64;
     }
 
     _vector_op(op, lhs, rhs, out){
