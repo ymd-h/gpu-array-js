@@ -1040,12 +1040,39 @@ class NDArray {
 };
 
 
-class Xoshiro128pp {
+class PRNG {
+    /**
+     * @param {"f32" | "f64"}
+     * @returns {NDArray}
+     */
+    normal(dtype){
+        dtype ??= "f32";
+
+        // 0 <= u, v < 1
+        const u = this.next(dtype);
+        const v = this.next(dtype);
+
+        // 0 < u1 <= 1
+        const u1 = this.backend.sub(this.backend.ones({ shape: u.shape, dtype }), u);
+
+        const b = this.backend;
+        const r = b.mul(
+            b.sin(b.mul(b.full(2*Math.PI, { dtype }), v)),
+            b.sqrt(b.mul(b.full(-2, { dtype }), b.log(u1))),
+        );
+
+        return r;
+    }
+};
+
+class Xoshiro128pp extends PRNG {
     /**
      * @param {GPUBackend} backend
      * @param {PRNGOptions?} options
      */
     constructor(backend, options){
+        super();
+
         let { seed, size } = options ?? {};
 
         /** @type {GPUBackend} */
