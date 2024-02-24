@@ -295,6 +295,16 @@ TEST("Xoshiro128++", [
         const s = gpu.sum(f1);
         assertAlmostEqual((await s.get(0)) / f1.length, 0.5, { rtol: 0.1 });
     }],
+    ["norm", async () => {
+        const size = 1000;
+        const prng = gpu.Xoshiro128pp({ size });
+        const X = prng.normal();
+        await X.load();
+        assertEqual(X.shape, [size]);
+
+        const mu = gpu.div(gpu.sum(X), gpu.full(X.shape[0]));
+        assertAlmostEqual(await mu.get(0), 0.0, { rtol: 0.1, atol: 0.1 });
+    }],
 ]);
 
 
