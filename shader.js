@@ -4,16 +4,20 @@ const f16 = (...arrays) => {
     return arrays.some(a => a.type === "f16") ? "enable f16;" : "";
 };
 
+const binding = (name, arg, write = false) => (arg.scalar !== undefined) ?
+      `override ${name}: ${arg.type}` :
+      `@group(0) @binding(${arg.binding})
+var<storage, ${write ? "read_write" : "read"}> ${name}: array<${arg.type ?? "u32"}>;`;
+
+
 const vector_op = (op, size, lhs, rhs, out) => `
 ${f16(lhs, rhs, out)}
-@group(0) @binding(${lhs.binding})
-var<storage, read> lhs: array<${lhs.type}>;
 
-@group(0) @binding(${rhs.binding})
-var<storage, read> rhs: array<${rhs.type}>;
+${binding("lhs", lhs)}
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("rhs", rhs)}
+
+${binding("out", out, true)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -29,23 +33,18 @@ const vector_op_indirect = (
     lhs_strides, rhs_strides, out_strides,
 ) => `
 ${f16(lhs, rhs, out)}
-@group(0) @binding(${lhs.binding})
-var<storage, read> lhs: array<${lhs.type}>;
 
-@group(0) @binding(${rhs.binding})
-var<storage, read> rhs: array<${rhs.type}>;
+${binding("lhs", lhs)}
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("rhs", rhs)}
 
-@group(0) @binding(${lhs_strides.binding})
-var<storage, read> lhs_strides: array<u32>;
+${binding("out", out, true)}
 
-@group(0) @binding(${rhs_strides.binding})
-var<storage, read> rhs_strides: array<u32>;
+${binding("lhs_strides", lhs_strides)}
 
-@group(0) @binding(${out_strides.binding})
-var<storage, read> out_strides: array<u32>;
+${binding("rhs_strides", rhs_strides)}
+
+${binding("out_strides", out_strides)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -69,14 +68,12 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 }
 `;
 
-
 const func1 = (f, size, arg, out) => `
 ${f16(arg, out)}
-@group(0) @binding(${arg.binding})
-var<storage, read> arg: array<${arg.type}>;
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("arg", arg)}
+
+${binding("out", out, true)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -88,14 +85,12 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 const func2 = (f, size, args, out) => `
 ${f16(...args, size)}
-@group(0) @binding(${args[0].binding})
-var<storage, read> arg0: array<${args[0].type}>;
 
-@group(0) @binding(${args[1].binding})
-var<storage, read> arg1: array<${args[1].type}>;
+${binding("arg0", args[0])}
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("arg1", args[1])}
+
+${binding("out", out, true)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -107,23 +102,18 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 const func2_indirect = (f, size, args, out, args_strides, out_strides) => `
 ${f16(...args, out)}
-@group(0) @binding(${args[0].binding})
-var<storage, read> arg0: array<${args[0].type}>;
 
-@group(0) @binding(${args[1].binding})
-var<storage, read> arg1: array<${args[1].type}>;
+${binding("arg0", args[0])}
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("arg1", args[1])}
 
-@group(0) @binding(${args_strides[0].binding})
-var<storage, read> arg0_strides: array<u32>;
+${binding("out", out, true)}
 
-@group(0) @binding(${args_strides[1].binding})
-var<storage, read> arg1_strides: array<u32>;
+${binding("arg0_strides", args_strides[0])}
 
-@group(0) @binding(${out_strides.binding})
-var<storage, read> out_strides: array<u32>;
+${binding("arg1_strides", args_strides[1])}
+
+${binding("out_strides", out_strides)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -150,11 +140,10 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 const reduce_op = (op, size, arg, out) => `
 ${f16(arg, out)}
-@group(0) @binding(${arg.binding})
-var<storage, read> arg: array<${arg.type}>;
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("arg", arg)}
+
+${binding("out", out, true)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -174,11 +163,10 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 const reduce_func = (f, size, arg, out) => `
 ${f16(arg, out)}
-@group(0) @binding(${arg.binding})
-var<storage, read> arg: array<${arg.type}>;
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("arg", arg)}
+
+${binding("out", out, true)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -203,14 +191,10 @@ const _xoshiro128pp_out = (out) => (out === undefined) ?
 
 const _xoshiro128pp_binding = (out) => (out === undefined) ?
       "" :
-      `
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
-`;
+      `${binding("out", out, true)}`;
 
 const _xoshiro128pp_next = (state, out) => `
-@group(0) @binding(${state.binding})
-var<storage, read_write> state: array<vec4<u32>>;
+${binding("state", { ...state, type: "vec4<u32>"}, true)}
 
 ${_xoshiro128pp_binding(out)}
 
@@ -283,14 +267,11 @@ fn main(){
 
 
 const flat_index = (size, strides, index, out) => `
-@group(0) @binding(${strides.binding})
-var<storage, read> strides: array<u32>;
+${binding("strides", strides)}
 
-@group(0) @binding(${index.binding})
-var<storage, read> index: array<u32>;
+${binding("index", index)}
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<u32>;
+${binding("out", out, true)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -306,17 +287,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 `;
 
 const gather = (size, from, fromIndex, to, toIndex) => `
-@group(0) @binding(${from.binding})
-var<storage, read> from: array<${from.type}>;
+${binding("from", from)}
 
-@group(0) @binding(${fromIndex.binding})
-var<storage, read> fromIndex: array<u32>;
+${binding("fromIndex", fromIndex)}
 
-@group(0) @binding(${to.binding})
-var<storage, read_write> to: array<${to.type}>;
+${binding("to", to)}
 
-@group(0) @binding(${toIndex.binding})
-var<storage, read> toIndex: array<u32>;
+${binding("toIndex", toIndex)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -328,17 +305,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 
 const where = (size, cond, True, False, out) => `
-@group(0) @binding(${cond.binding})
-var<storage, read> cond: array<${cond.type}>;
+${binding("cond", cond)}
 
-@group(0) @binding(${True.binding})
-var<storage, read> True: array<${True.type}>;
+${binding("True", True)}
 
-@group(0) @binding(${False.binding})
-var<storage, read> False: array<${False.type}>;
+${binding("False", False)}
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("out", out, true)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
@@ -353,29 +326,21 @@ const where_indirect = (
     size,
     cond, True, False, out,
     cond_strides, True_strides, False_strides, out_strides) => `
-@group(0) @binding(${cond.binding})
-var<storage, read> cond: array<${cond.type}>;
+${binding("cond", cond)}
 
-@group(0) @binding(${True.binding})
-var<storage, read> True: array<${True.type}>;
+${binding("True", True)}
 
-@group(0) @binding(${False.binding})
-var<storage, read> False: array<${False.type}>;
+${binding("False", False)}
 
-@group(0) @binding(${out.binding})
-var<storage, read_write> out: array<${out.type}>;
+${binding("out", out, true)}
 
-@group(0) @binding(${cond_strides.binding})
-var<storage, read> cond_strides: array<u32>;
+${binding("cond_strides", cond_strides)}
 
-@group(0) @binding(${True_strides.binding})
-var<storage, read> True_strides: array<u32>;
+${binding("True_strides", True_strides)}
 
-@group(0) @binding(${False_strides.binding})
-var<storage, read> False_strides: array<u32>;
+${binding("False_strides", False_strides)}
 
-@group(0) @binding(${out_strides.binding})
-var<storage, read> out_strides: array<u32>;
+${binding("out_strides", out_strides)}
 
 @compute @workgroup_size(${size})
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
