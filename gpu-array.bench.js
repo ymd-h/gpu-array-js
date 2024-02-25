@@ -63,3 +63,14 @@ await BENCH(`sqrt: N = ${N}`, [
         return C;
     }],
 ]);
+
+
+await BENCH(`random: N = ${N}`, [
+    [`js: Math.random`, () => {
+        const n = Array.from({length: N}, () => Math.random());
+    }],
+    [`gpu (with init)`, async () => {
+        const prng = gpu.Xoshiro128pp({size: N});
+        const n = await prng.next();
+    }],
+]);
