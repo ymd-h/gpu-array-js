@@ -11,7 +11,7 @@ const b = Array.from({length: N}, (_, i) => i * 2 + 3);
 
 await BENCH(`Add: N = ${N}`, [
     [`js`, () => {
-        const c = Array.from({length: N}, (_, i) => a[i] + b[i]);
+        return Array.from({length: N}, (_, i) => a[i] + b[i]);
     }],
     [`gpu (set bulk)`, async () => {
         const A = gpu.Array({shape: N});
@@ -22,6 +22,8 @@ await BENCH(`Add: N = ${N}`, [
 
         const C = gpu.add(A, B);
         await C.load();
+
+        return C;
     }],
     [`gpu (set one by one)`, async () => {
         const A = gpu.Array({shape: N});
@@ -32,13 +34,15 @@ await BENCH(`Add: N = ${N}`, [
 
         const C = gpu.add(A, B);
         await C.load();
+
+        return C;
     }],
 ]);
 
 
 await BENCH(`sqrt: N = ${N}`, [
     [`js`, () => {
-        const c = Array.from({length: N}, (_, i) => Math.sqrt(a[i]));
+        return Array.from({length: N}, (_, i) => Math.sqrt(a[i]));
     }],
     [`gpu (set bulk)`, async () => {
         const A = gpu.Array({shape: N});
@@ -46,6 +50,8 @@ await BENCH(`sqrt: N = ${N}`, [
 
         const C = gpu.sqrt(A);
         await C.load();
+
+        return C;
     }],
     [`gpu (set one by one)`, async () => {
         const A = gpu.Array({shape: N});
@@ -53,5 +59,7 @@ await BENCH(`sqrt: N = ${N}`, [
 
         const C = gpu.sqrt(A);
         await C.load();
+
+        return C;
     }],
 ]);

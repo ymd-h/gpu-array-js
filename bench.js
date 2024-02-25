@@ -1,4 +1,5 @@
 import van from "https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-latest.min.js"
+import { assertAlmostEqual } from "./test.js";
 
 const {
     details, summary,
@@ -17,12 +18,15 @@ const BENCH = async (SummaryLine, cases) => {
         ),
     );
 
+    let ret = null;
     for(const c of cases){
         const [name, f] = c;
 
         const t1 = performance.now();
-        await f();
+        const R = await f();
         const t2 = performance.now();
+        ret ??= R;
+        assertAlmostEqual(R, ret);
 
         van.add(b, tr(th({scope: "row"}, name),
                       td(`${(t2 - t1).toFixed(2)}ms`)));
