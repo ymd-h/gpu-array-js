@@ -10,6 +10,9 @@ const binding = (name, arg, write = false) => (arg.scalar !== undefined) ?
 var<storage, ${write ? "read_write" : "read"}> ${name}: array<${arg.type ?? "u32"}>;`;
 
 
+const v = (name, arg, idx) => (arg.scalar !== undefined) ? name : `${name}[${idx}]`;
+
+
 const vector_op = (op, size, lhs, rhs, out) => `
 ${f16(lhs, rhs, out)}
 
@@ -23,7 +26,9 @@ ${binding("out", out, true)}
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
-    out[id.x] = ${out.conv}(${lhs.conv}(lhs[id.x]) ${op} ${rhs.conv}(rhs[id.x]));
+    let L = ${lhs.conv}(${v("lhs", lhs, "id.x")});
+    let R = ${rhs.conv}(${v("rhs", rhs, "id.x")});
+    out[id.x] = ${out.conv}(L ${op} R);
 }
 `;
 
@@ -79,7 +84,7 @@ ${binding("out", out, true)}
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
-    out[id.x] = ${out.conv}(${f}(${arg.conv}(arg[id.x])));
+    out[id.x] = ${out.conv}(${f}(${arg.conv}(${v("arg", arg, "id.x")})));
 }
 `;
 
@@ -96,7 +101,9 @@ ${binding("out", out, true)}
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
-    out[id.x] = ${out.conv}(${f}(${args[0].conv}(arg0[id.x]), ${args[1].conv}(arg1[id.x])));
+    let A0 = ${args[0].conv}(${v("arg0", args[0], "id.x")});
+    let A1 = ${args[1].conv}(${v("arg1", args[1], "id.x")});
+    out[id.x] = ${out.conv}(${f}(A0, A1));
 }
 `;
 
@@ -317,7 +324,10 @@ ${binding("out", out, true)}
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
-    out[id.x] = ${out.conv ?? ""}(select(${False.conv ?? ""}(False[id.x]), ${True.conv ?? ""}(True[id.x]), bool(cond[id.x])));
+    let F = ${False.conv ?? ""}(${v("False", False, "id.x")});
+    let T = ${ True.conv ?? ""}(${v( "True",  True, "id.x")});
+    let C = bool(${v("cond", cond, "id.x")});
+    out[id.x] = ${out.conv ?? ""}(select(F, T, C));
 }
 `;
 
