@@ -1014,10 +1014,19 @@ class NDArray {
 
     /**
      * Set Value
-     * @param {number} value
+     * @param {number | number[] | TypedArray} value
      * @param {number[]} index
      */
     set(value, ...index){
+        if(index.length === 0){
+            if(value.length === this.length){
+                this.cpu.set(value);
+                this.cpu_dirty = true;
+                return;
+            }
+            throw new Error(`Incompatible length: ${this.length} !== ${value.length}`);
+        }
+
         if(index.length > this.shape.length){
             throw new Error(`Too many indices: ${index.length} > ${this.shape.length}`);
         }
