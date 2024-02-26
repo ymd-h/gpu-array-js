@@ -497,16 +497,16 @@ class GPUBackend {
         }
 
         const shader_args = [
-                op, size,
-                {binding: 0, type: lhs.dtype, conv: (dtype === lhs.dtype) ? "" : dtype},
-                {binding: 1, type: rhs.dtype, conv: (dtype === rhs.dtype) ? "" : dtype},
-                {binding: 2, type: out.dtype, conv: (dtype === out.dtype) ? "" : out.dtype},
+            op, size,
+            {binding: 0, type: lhs.dtype, conv: (dtype === lhs.dtype) ? "" : dtype},
+            {binding: 1, type: rhs.dtype, conv: (dtype === rhs.dtype) ? "" : dtype},
+            {binding: 2, type: out.dtype, conv: (dtype === out.dtype) ? "" : out.dtype},
         ];
 
         const execute_buffers = [
-                {array: lhs, mode: "read-only"},
-                {array: rhs, mode: "read-only"},
-                {array: out, mode: "write-only"},
+            {array: lhs, mode: "read-only"},
+            {array: rhs, mode: "read-only"},
+            {array: out, mode: "write-only"},
         ];
 
         let lhs_strides = null;
