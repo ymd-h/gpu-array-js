@@ -312,6 +312,7 @@ class GPUBackend {
 
                 switch(type){
                 case "error":
+                    console.error(code);
                     throw new Error(m);
                     break;
                 case "warning":
