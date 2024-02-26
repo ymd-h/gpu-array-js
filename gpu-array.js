@@ -78,13 +78,13 @@ const equalShapes = (...shapes) => {
 
 
 /**
- * @param {string} t1
- * @param {string} t2
+ * @param {string?} t1
+ * @param {string?} t2
  * @returns {string}
  */
 const promoteType = (t1, t2) => {
     if(t1 === t2){
-        return t1;
+        return t1 ?? "f32";
     }
 
     if((t1 === "f32") || (t2 === "f32")){
@@ -95,7 +95,11 @@ const promoteType = (t1, t2) => {
         return "f16";
     }
 
-    throw new Error(`Incompatible Types: ${t1}, ${t2}`);
+    if((t1 !== undefined) && (t2 !== undefined)){
+        throw new Error(`Incompatible Types: ${t1}, ${t2}`);
+    }
+
+    return t1 ?? t2;
 }
 
 
