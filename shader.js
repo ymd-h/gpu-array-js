@@ -26,8 +26,8 @@ ${binding("out", out, true)}
 fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
-    let L = ${lhs.conv}(${v("lhs", lhs, "id.x")});
-    let R = ${rhs.conv}(${v("rhs", rhs, "id.x")});
+    let L = ${lhs.conv ?? ""}(${v("lhs", lhs, "id.x")});
+    let R = ${rhs.conv ?? ""}(${v("rhs", rhs, "id.x")});
     out[id.x] = ${out.conv}(L ${op} R);
 }
 `;
