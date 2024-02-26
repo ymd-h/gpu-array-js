@@ -119,6 +119,13 @@ TEST("Operator", [
         assertEqual(c.length, 6);
         assertAlmostEqual(c, [2, 2, 2, 2, 2, 2]);
     }],
+    ["a + b (scalar)", async () => {
+        const a = gpu.full(2, { shape: [2] });
+        const c = gpu.add(a, 1.7);
+        await c.load();
+        assertEqual(c.shape, [2]);
+        assertAlmostEqual(c, [3.7, 3.7]);
+    }],
 ]);
 
 TEST("f(a)", [
