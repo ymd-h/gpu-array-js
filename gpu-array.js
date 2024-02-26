@@ -426,8 +426,9 @@ class GPUBackend {
      * @param {GPUShaderModule} shader
      * @param {ArraySpec[]} specs
      * @param {number[]} dispatch
+     * @param {Object.<string, *>?} constants
      */
-    execute(shader, specs, dispatch){
+    execute(shader, specs, dispatch, constants){
         for(const {array, mode} of specs){
             switch(mode){
             case "read-only":
@@ -456,6 +457,7 @@ class GPUBackend {
                 return {
                     binding: i,
                     resource: { buffer: s.array.gpu },
+                    constants,
                 };
             }),
         });
