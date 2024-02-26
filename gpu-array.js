@@ -500,7 +500,7 @@ class GPUBackend {
                 op, size,
                 {binding: 0, type: lhs.dtype, conv: (dtype === lhs.dtype) ? "" : dtype},
                 {binding: 1, type: rhs.dtype, conv: (dtype === rhs.dtype) ? "" : dtype},
-                {binding: 2, type: out.dtype, conv: (dtype === out.dtype) ? "" : dtype},
+                {binding: 2, type: out.dtype, conv: (dtype === out.dtype) ? "" : out.dtype},
         ];
 
         const execute_buffers = [
@@ -591,6 +591,7 @@ class GPUBackend {
         }
 
         const conv = (v) => (v.dtype === dtype) ? "" : dtype;
+        const out_conv = (out.dtype === dtype) ? "" : out.dtype;
 
         const use_strides = (arg0.custom_strides ||
                              arg1.custom_strides ||
@@ -602,7 +603,7 @@ class GPUBackend {
                 { binding: 0, type: arg0.dtype, conv: conv(arg0) },
                 { binding: 1, type: arg1.dtype, conv: conv(arg1) },
             ],
-            { binding: 2, type: out.dtype, conv: conv(out) },
+            { binding: 2, type: out.dtype, conv: out_conv },
         ];
 
         const execute_buffers = [
