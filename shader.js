@@ -5,7 +5,7 @@ const f16 = (...arrays) => {
 };
 
 const binding = (name, arg, write = false) => (arg.scalar !== undefined) ?
-      `override ${name}: ${arg.type}` :
+      `override ${name}: ${arg.type};` :
       `@group(0) @binding(${arg.binding})
 var<storage, ${write ? "read_write" : "read"}> ${name}: array<${arg.type ?? "u32"}>;`;
 
