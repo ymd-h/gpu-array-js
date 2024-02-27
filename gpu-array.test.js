@@ -182,6 +182,14 @@ TEST("f(a, b)", [
         await c.load();
         assertAlmostEqual(c, [1, 1.5, 2, 2]);
     }],
+    ["pow(a, b) -> c", async () => {
+        const a = gpu.full(2, { shape: 2 });
+        const b = gpu.arange({ start: 1, stop: 3 });
+        const c = gpu.Array({ shape: 2 });
+        gpu.pow(a, b, c);
+        await c.load();
+        assertAlmostEqual(c, [2, 4]);
+    }],
 ]);
 
 
