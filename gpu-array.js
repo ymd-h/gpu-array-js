@@ -531,15 +531,12 @@ class GPUBackend {
         ];
 
         const execute_buffers = [];
-
         if(lhs_array){
             execute_buffers.push({array: lhs, mode: "read-only"});
         }
-
         if(rhs_array){
             execute_buffers.push({array: rhs, mode: "read-only"});
         }
-
         execute_buffers.push({array: out, mode: "write-only"});
 
 
