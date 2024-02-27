@@ -195,7 +195,7 @@ class GPUBackend {
             ["div", "/"],
         ];
         for(const [name, op] of vop){
-            this[name] = (lhs, rhs, out) => this._vector_op(op, lhs, rhs);
+            this[name] = (lhs, rhs, out) => this._vector_op(op, lhs, rhs, out);
         }
 
         // Function with 1 Argument
@@ -216,7 +216,7 @@ class GPUBackend {
             "tan", "tanh",
         ];
         for(const f of f1){
-            this[f] = (arg, out) => this._func1(f, arg);
+            this[f] = (arg, out) => this._func1(f, arg, out);
         }
 
         // Function with 2 Arguments
