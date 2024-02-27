@@ -556,23 +556,27 @@ class GPUBackend {
                              rhs.custom_strides ||
                              !equalShapes(lhs.shape, rhs.shape, out.shape));
         if(use_strides){
-            if((lhs.dtype === undefined) || (rhs.dtype === undefined)){
-                throw new Error(`Scalar with strides has not supported yet.`);
+            if(lhs_array){
+                lhs_strides = this.#stridesBuffer(broadcastStrides(lhs, out.shape));
+                shader_args.push({binding: b++});
+                execute_buffers.push({array: lhs_strides, mode: "read-only"});
+            } else {
+                shader_args.push({scalar: true});
             }
 
-            lhs_strides = this.#stridesBuffer(broadcastStrides(lhs, out.shape));
-            rhs_strides = this.#stridesBuffer(broadcastStrides(rhs, out.shape));
+            if(rhs_array){
+                rhs_strides = this.#stridesBuffer(broadcastStrides(rhs, out.shape));
+                shader_args.push({binding: b++});
+                execute_buffers.push({array: rhs_strides, mode: "read-only"});
+            } else {
+                shader_args.push({scalar: true});
+            }
+
             out_strides = this.#stridesBuffer(out.strides);
-
             shader_args.push(
-                {binding: 3},
-                {binding: 4},
-                {binding: 5},
+                {binding: b++},
             );
-
             execute_buffers.push(
-                {array: lhs_strides, mode: "read-only"},
-                {array: rhs_strides, mode: "read-only"},
                 {array: out_strides, mode: "read-only"},
             );
         }

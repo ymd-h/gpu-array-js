@@ -11,7 +11,7 @@ var<storage, ${write ? "read_write" : "read"}> ${name}: array<${arg.type ?? "u32
 
 
 const v = (name, arg, idx) => (arg.scalar !== undefined) ? name : `${name}[${idx}]`;
-
+const s = (stmt, arg) => (arg.scalar !== undefined) ? "" : stmt;
 
 const vector_op = (op, size, lhs, rhs, out) => `
 ${f16(lhs, rhs, out)}
@@ -45,9 +45,9 @@ ${binding("rhs", rhs)}
 
 ${binding("out", out, true)}
 
-${binding("lhs_strides", lhs_strides)}
+${s(binding("lhs_strides", lhs_strides), lhs_strides)}
 
-${binding("rhs_strides", rhs_strides)}
+${s(binding("rhs_strides", rhs_strides), rhs_strides)}
 
 ${binding("out_strides", out_strides)}
 
@@ -56,20 +56,23 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
     var O: u32 = id.x;
-    var L: u32 = 0;
-    var R: u32 = 0;
+    ${s("var L: u32 = 0;", lhs)}
+    ${s("var R: u32 = 0;", rhs)}
     for(var s: u32 = arrayLength(&out_strides) -1; s > 0; s--){
         let iN: u32 = O % out_strides[s-1];
         var i: u32 = iN / out_strides[s];
-        L += i * lhs_strides[s];
-        R += i * rhs_strides[s];
+        ${s("L += i * lhs_strides[s];", lhs)}
+        ${s("R += i * rhs_strides[s];", rhs)}
         O -= iN;
     }
     var i: u32 = O / out_strides[0];
-    L += i * lhs_strides[0];
-    R += i * rhs_strides[0];
+    ${s("L += i * lhs_strides[0];", lhs)}
+    ${s("R += i * rhs_strides[0];", rhs)}
 
-    out[id.x] = ${out.conv}(${lhs.conv}(lhs[L]) ${op} ${rhs.conv}(rhs[R]));
+    let LHS = ${lhs.conv ?? ""}(${v("lhs", lhs, "L")});
+    let RHS = ${rhs.conv ?? ""}(${v("rhs", rhs, "R")});
+
+    out[id.x] = ${out.conv}(LHS ${op} RHS);
 }
 `;
 
