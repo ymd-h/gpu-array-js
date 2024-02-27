@@ -79,7 +79,9 @@ TEST("Operator", [
         const a = gpu.full(2, { shape: [2, 2] });
         const b = gpu.arange({ stop: 4 }, { shape: [2, 2] });
         const c = gpu.add(a, b);
+        assertTruthy(c.gpu_dirty);
         await c.load();
+        assertFalsy(c.gpu_dirty);
         assertAlmostEqual(c, [2, 3, 4, 5]);
     }],
     ["a + b -> c (assign)", async () => {
