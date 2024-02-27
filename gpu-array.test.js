@@ -82,6 +82,17 @@ TEST("Operator", [
         await c.load();
         assertAlmostEqual(c, [2, 3, 4, 5]);
     }],
+    ["a + b -> c (assign)", async () => {
+        const a = gpu.full(2, { shape: [2, 2] });
+        const b = gpu.full(1.7, { shape: [1] });
+        const c = gpu.Array({ shape: [2, 2] });
+        const d = gpu.add(a, b, c);
+        assertTruthy(Object.is(c, d));
+        assertTruthy(c.gpu_dirty);
+        await c.load();
+        assertFalsy(c.gpu_dirty);
+        assertAlmostEqual(c, [3.7, 3.7, 3.7, 3.7]);
+    }],
     ["a - b", async () => {
         const a = gpu.full(2, { shape: [2, 2] });
         const b = gpu.arange({ stop: 4 }, { shape: [2, 2], dtype: "f32" });
