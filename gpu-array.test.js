@@ -164,6 +164,13 @@ TEST("f(a)", [
         await b.load();
         assertAlmostEqual(b, [1, 1, 1, 1, 1]);
     }],
+    ["log2(a) -> c (assign)", async () => {
+        const a = gpu.full(2.0, { shape: 3 });
+        const c = gpu.Array({ shape: 3 });
+        gpu.log2(a, c);
+        await c.load();
+        assertAlmostEqual(c, [1, 1, 1]);
+    }],
 ]);
 
 
