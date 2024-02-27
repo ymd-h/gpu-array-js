@@ -59,6 +59,8 @@ import {
  * @returns {bool}
  */
 const equalShapes = (...shapes) => {
+    shapes = shapes.filter(s => s !== undefined);
+
     if(shapes.length <= 1){
         return true;
     }
@@ -108,6 +110,7 @@ const promoteType = (t1, t2) => {
  * @returns {number[]}
  */
 const broadcastShapes = (...shapes) => {
+    shapes = shapes.map(s => s ?? [1]);
     const length = shapes.reduce((a, s) => Math.max(a, s.length), 0);
 
     return Array.from(
@@ -468,6 +471,7 @@ class GPUBackend {
             compute: {
                 module: shader,
                 entryPoint: "main",
+                constants,
             },
         });
 
@@ -497,18 +501,55 @@ class GPUBackend {
             throw new Error(`Custom Strides for out is not supported`);
         }
 
+        const lhs_array = lhs instanceof NDArray;
+        const rhs_array = rhs instanceof NDArray;
+
+        let b = 0;
         const shader_args = [
             op, size,
-            {binding: 0, type: lhs.dtype, conv: (dtype === lhs.dtype) ? "" : dtype},
-            {binding: 1, type: rhs.dtype, conv: (dtype === rhs.dtype) ? "" : dtype},
-            {binding: 2, type: out.dtype, conv: (dtype === out.dtype) ? "" : out.dtype},
+            lhs_array ? {
+                binding: b++,
+                type: lhs.dtype,
+                conv: (dtype === lhs.dtype) ? "" : dtype,
+            } : {
+                scalar: true,
+                type: dtype,
+            },
+            rhs_array ? {
+                binding: b++,
+                type: rhs.dtype,
+                conv: (dtype === rhs.dtype) ? "" : dtype,
+            } : {
+                scalar: true,
+                type: dtype,
+            },
+            {
+                binding: b++,
+                type: out.dtype,
+                conv: (dtype === out.dtype) ? "" : out.dtype,
+            },
         ];
 
-        const execute_buffers = [
-            {array: lhs, mode: "read-only"},
-            {array: rhs, mode: "read-only"},
-            {array: out, mode: "write-only"},
-        ];
+        const execute_buffers = [];
+
+        if(lhs_array){
+            execute_buffers.push({array: lhs, mode: "read-only"});
+        }
+
+        if(rhs_array){
+            execute_buffers.push({array: rhs, mode: "read-only"});
+        }
+
+        execute_buffers.push({array: out, mode: "write-only"});
+
+
+        const constants = (lhs_array && rhs_array) ? undefined : {};
+        if(!lhs_array){
+            constants.lhs = lhs;
+        }
+        if(!rhs_array){
+            constants.rhs = rhs;
+        }
 
         let lhs_strides = null;
         let rhs_strides = null;
@@ -518,6 +559,10 @@ class GPUBackend {
                              rhs.custom_strides ||
                              !equalShapes(lhs.shape, rhs.shape, out.shape));
         if(use_strides){
+            if((lhs.dtype === undefined) || (rhs.dtype === undefined)){
+                throw new Error(`Scalar with strides has not supported yet.`);
+            }
+
             lhs_strides = this.#stridesBuffer(broadcastStrides(lhs, out.shape));
             rhs_strides = this.#stridesBuffer(broadcastStrides(rhs, out.shape));
             out_strides = this.#stridesBuffer(out.strides);
@@ -541,7 +586,12 @@ class GPUBackend {
                 vector_op(...shader_args),
         );
 
-        this.execute(shader, execute_buffers, [Math.ceil(out.length / size)]);
+        this.execute(
+            shader,
+            execute_buffers,
+            [Math.ceil(out.length / size)],
+            constants,
+        );
         this.#destroyOnDone(lhs_strides, rhs_strides, out_strides);
         return out;
     }
