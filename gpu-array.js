@@ -422,7 +422,7 @@ class GPUBackend {
         };
     }
 
-    #destroyOnDone(...arrays){
+    _destroyOnDone(...arrays){
         this.device.queue.onSubmittedWorkDone().then(() => {
             arrays.forEach(a => a?.gpu.destroy());
         });
@@ -605,7 +605,7 @@ class GPUBackend {
             [Math.ceil(out.length / size)],
             constants,
         );
-        this.#destroyOnDone(lhs_strides, rhs_strides, out_strides);
+        this._destroyOnDone(lhs_strides, rhs_strides, out_strides);
         return out;
     }
 
@@ -705,7 +705,7 @@ class GPUBackend {
         );
 
         this.execute(shader, execute_buffers, [Math.ceil(out.length / size)]);
-        this.#destroyOnDone(arg0_strides, arg1_strides, out_strides);
+        this._destroyOnDone(arg0_strides, arg1_strides, out_strides);
         return out;
     }
 
@@ -742,7 +742,7 @@ class GPUBackend {
             }
 
             arg = out;
-            this.#destroyOnDone(out);
+            this._destroyOnDone(out);
         }
     }
 
@@ -779,7 +779,7 @@ class GPUBackend {
             }
 
             arg = out;
-            this.#destroyOnDone(out);
+            this._destroyOnDone(out);
         }
     }
 
@@ -857,7 +857,7 @@ class GPUBackend {
         );
 
         this.execute(shader, execute_buffers, [Math.ceil(out.length / this.sizeX)]);
-        this.#destroyOnDone(cond_strides, True_strides, False_strides, out_strides);
+        this._destroyOnDone(cond_strides, True_strides, False_strides, out_strides);
 
         return out;
     }
