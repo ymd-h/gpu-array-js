@@ -187,6 +187,9 @@ class GPUBackend {
         /** @type {Map<string, GPUShaderModule>} */
         this.shader = new Map();
 
+        /** @type {Map<GPUShaderModule, GPUComputePipeliine>} */
+        this.pipe = new Map();
+
         // Vector Operand
         const vop = [
             ["add", "+"],
@@ -466,14 +469,23 @@ class GPUBackend {
             }),
         });
 
-        const pipeline = this.device.createComputePipeline({
-            layout: pipelineLayout,
-            compute: {
-                module: shader,
-                entryPoint: "main",
-                constants,
-            },
-        });
+        let pipeline = null;
+        if((constants === undefined) && this.pipe.has(shader)){
+            pipeline = this.pipe.get(shader);
+        } else {
+            pipeline = this.device.createComputePipeline({
+                layout: pipelineLayout,
+                compute: {
+                    module: shader,
+                    entryPoint: "main",
+                    constants,
+                },
+            });
+            if(constants === undefined){
+                this.pipe.set(shader, pipeline);
+            }
+        }
+
 
         const cmd = this.device.createCommandEncoder();
         const pass = cmd.beginComputePass();
