@@ -318,6 +318,8 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 `;
 
 const gather = (size, from, fromIndex, to, toIndex) => `
+${f16(from, to)}
+
 ${binding("from", from)}
 
 ${binding("fromIndex", fromIndex)}
@@ -336,6 +338,8 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
 
 
 const where = (size, cond, True, False, out) => `
+${f16(True, False, out)}
+
 ${binding("cond", cond)}
 
 ${binding("True", True)}
@@ -360,6 +364,8 @@ const where_indirect = (
     size,
     cond, True, False, out,
     cond_strides, True_strides, False_strides, out_strides) => `
+${f16(True, False, out)}
+
 ${binding("cond", cond)}
 
 ${binding("True", True)}
