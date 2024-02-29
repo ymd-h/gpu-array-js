@@ -119,9 +119,9 @@ ${binding("arg1", args[1])}
 
 ${binding("out", out, true)}
 
-${binding("arg0_strides", args_strides[0])}
+${s(binding("arg0_strides", args_strides[0]), args_strides[0])}
 
-${binding("arg1_strides", args_strides[1])}
+${s(binding("arg1_strides", args_strides[1]), args_strides[1])}
 
 ${binding("out_strides", out_strides)}
 
@@ -130,20 +130,22 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
     var O: u32 = id.x;
-    var I0: u32 = 0;
-    var I1: u32 = 0;
+    ${s("var I0: u32 = 0;", args[0])}
+    ${s("var I1: u32 = 0;", args[1])}
     for(var s: u32 = arrayLength(&out_strides) -1; s > 0; s--){
         let iN: u32 = O % out_strides[s-1];
         var i: u32 = iN / out_strides[s];
-        I0 += i * arg0_strides[s];
-        I1 += i * arg1_strides[s];
+        ${s("I0 += i * arg0_strides[s];", args[0])}
+        ${s("I1 += i * arg1_strides[s];", args[1])}
         O -= i;
     }
     var i: u32 = O / out_strides[0];
-    I0 += i * arg0_strides[0];
-    I1 += i * arg1_strides[0];
+    ${s("I0 += i * arg0_strides[0];", args[0])}
+    ${s("I1 += i * arg1_strides[0];", args[1])}
 
-    out[id.x] = ${out.conv}(${f}(${args[0].conv}(arg0[I0]), ${args[1].conv}(arg1[I1])));
+    let A0 = ${args[0].conv}(${v("arg0", args[0], "I0")});
+    let A1 = ${args[1].conv}(${v("arg1", args[1], "I1")});
+    out[id.x] = ${out.conv}(${f}(A0, A1));
 }
 `;
 
@@ -374,11 +376,11 @@ ${binding("False", False)}
 
 ${binding("out", out, true)}
 
-${binding("cond_strides", cond_strides)}
+${s(binding("cond_strides", cond_strides), cond_strides)}
 
-${binding("True_strides", True_strides)}
+${s(binding("True_strides", True_strides), True_strides)}
 
-${binding("False_strides", False_strides)}
+${s(binding("False_strides", False_strides), False_strides)}
 
 ${binding("out_strides", out_strides)}
 
@@ -387,23 +389,27 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>){
     if(id.x >= arrayLength(&out)){ return; }
 
     var O: u32 = id.x;
-    var C: u32 = 0;
-    var T: u32 = 0;
-    var F: u32 = 0;
+    ${s("var C: u32 = 0;", cond_strides)}
+    ${s("var T: u32 = 0;", True_strides)}
+    ${s("var F: u32 = 0;", False_strides)}
     for(var s: u32 = arrayLength(&out_strides) -1; s > 0; s--){
         let iN: u32 = O % out_strides[s-1];
         var i: u32 = iN / out_strides[s];
-        C += i * cond_strides[s];
-        T += i * True_strides[s];
-        F += i * False_strides[s];
+        ${s("C += i * cond_strides[s];", cond_strides)}
+        ${s("T += i * True_strides[s];", True_strides)}
+        ${s("F += i * False_strides[s];", False_strides)}
         O -= i;
     }
     var i: u32 = O / out_strides[0];
-    C += i * cond_strides[0];
-    T += i * True_strides[0];
-    F += i * False_strides[0];
+    ${s("C += i * cond_strides[0];", cond_strides)}
+    ${s("T += i * True_strides[0];", True_strides)}
+    ${s("F += i * False_strides[0];", False_strides)}
 
-    out[id.x] = ${out.conv ?? ""}(select(${False.conv ?? ""}(False[F]), ${True.conv ?? ""}(True[T]), bool(cond[C])));
+    let COND  = bool(${v("cond", cond, "C")});
+    let TRUE  = ${ True.conv ?? ""}(${v( "True",  True, "T")});
+    let FALSE = ${False.conv ?? ""}(${v("False", False, "F")});
+
+    out[id.x] = ${out.conv ?? ""}(select(FALSE, TRUE, COND));
 }
 `;
 
