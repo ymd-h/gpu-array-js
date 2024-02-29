@@ -8,6 +8,7 @@ import {
     func2, func2_indirect,
     reduce_op, reduce_func,
     xoshiro128pp, xoshiro128pp_init,
+    box_muller,
     where, where_indirect,
 } from "./shader.js";
 
@@ -1121,6 +1122,8 @@ class NDArray {
 
 
 class PRNG {
+    #rng
+
     /**
      * @param {"f32" | "f64"}
      * @returns {NDArray}
@@ -1128,20 +1131,46 @@ class PRNG {
     normal(dtype){
         dtype ??= "f32";
 
+        if(this.#rng?.dtype === dtype){
+            const rng = this.#rng;
+            this.#rng = null;
+            return rng;
+        }
+
         // 0 <= u, v < 1
         const u = this.next(dtype);
         const v = this.next(dtype);
 
-        // 0 < u1 <= 1
-        const u1 = this.backend.sub(this.backend.ones({ shape: u.shape, dtype }), u);
-
         const b = this.backend;
-        const r = b.mul(
-            b.sin(b.mul(b.full(2*Math.PI, { dtype }), v)),
-            b.sqrt(b.mul(b.full(-2, { dtype }), b.log(u1))),
+
+        const r1 = b.Array({ shape: u.shape, dtype });
+        const r2 = b.Array({ shape: u.shape, dtype });
+
+        const shader = b.createShader(
+            box_muller(
+                b.sizeX,
+                {binding: 0, type: u.dtype},
+                {binding: 1, type: v.dtype},
+                {binding: 2, type: r1.dtype},
+                {binding: 3, type: r2.dtype},
+            ),
         );
 
-        return r;
+        b.execute(
+            shader,
+            [
+                {array: u, mode: "read-only"},
+                {array: v, mode: "read-only"},
+                {array: r1, mode: "write-only"},
+                {array: r2, mode: "write-only"},
+            ],
+            [Math.ceil(u.length / b.sizeX)],
+        );
+
+        this.#rng = r2;
+
+        b._destroyOnDone(u, v);
+        return r1;
     }
 };
 

@@ -275,6 +275,27 @@ fn main(){
 }
 `;
 
+const box_muller = (size, u, v, r1, r2) => `
+${binding("u", u)}
+
+${binding("v", v)}
+
+${binding("r1", r1, true)}
+
+${binding("r2", r2, true)}
+
+@compute @workgroup_size(${size})
+fn main(@builtin(global_invocation_id) id: vec3<u32>){
+    if(id.x >= arrayLength(&r1)){ return; }
+
+    let theta = ${2 * Math.PI} * u[id.x];
+    let R = sqrt(-2 * log(1 - v[id.x]));
+
+    r1[id.x] = R * cos(theta);
+    r2[id.x] = R * sin(theta);
+}
+`;
+
 
 const flat_index = (size, strides, index, out) => `
 ${binding("strides", strides)}
@@ -387,6 +408,7 @@ export {
     func2, func2_indirect,
     reduce_op, reduce_func,
     xoshiro128pp, xoshiro128pp_init,
+    box_muller,
     flat_index, gather,
     where, where_indirect,
 };
