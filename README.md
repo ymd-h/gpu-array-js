@@ -99,36 +99,36 @@ console.log(await c.get(1, 1));
 ### 2.5 Predefined Functions
 #### 2.5.1 Element-wise (Support Broadcast)
 
-- `GPUBackend.add(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.sub(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.mul(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.div(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.abs(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.acos(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.acosh(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.asin(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.asinh(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.atan(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.atanh(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.atan2(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.ceil(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.clamp(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.cos(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.cosh(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.exp(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.exp2(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.floor(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.log(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.log2(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.sign(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.sin(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.sinh(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.sqrt(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.tan(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.tanh(arg: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.max(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.min(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
-- `GPUBackend.pow(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
+- `GPUBackend.add(lhs: NDArray | number, rhs: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.sub(lhs: NDArray | number, rhs: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.mul(lhs: NDArray | number, rhs: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.div(lhs: NDArray | number, rhs: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.abs(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.acos(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.acosh(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.asin(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.asinh(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.atan(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.atanh(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.atan2(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.ceil(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.clamp(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.cos(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.cosh(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.exp(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.exp2(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.floor(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.log(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.log2(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.sign(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.sin(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.sinh(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.sqrt(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.tan(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.tanh(arg: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.max(arg0: NDArray | number, arg1: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.min(arg0: NDArray | number, arg1: NDArray | number, out: NDArray?): NDArray`
+- `GPUBackend.pow(arg0: NDArray | number, arg1: NDArray | number, out: NDArray?): NDArray`
 
 #### 2.5.2 Reduction
 
@@ -183,7 +183,6 @@ Only when the data are updated `send()` / `load()` methods acutually copy data.
 A lot of features are still missing;
 
 - Linear Algebra (e.g. Matrix Multiplication)
-- Non Single Element `get()` / `set()`
 
 
 The size of data must be multiple of 4 bytes,
