@@ -1125,7 +1125,7 @@ class PRNG {
     #rng
 
     /**
-     * @param {"f32" | "f64"}
+     * @param {"f32" | "f16"} dtype
      * @returns {NDArray}
      */
     normal(dtype){
