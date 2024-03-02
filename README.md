@@ -76,6 +76,9 @@ console.log(await c.get(1, 1));
   - `@property {number?} start`
   - `@property {number} stop`
   - `@property {number?} step`
+- `@typedef {Object} PRNGOptions`
+  - `@property {number | bigint | undefined} seed`
+  - `@property {number?} size`
 
 
 ### 2.2 Exported (Free) Function
@@ -159,6 +162,12 @@ cf. [WGSL Numeric Built-in Functions](https://gpuweb.github.io/gpuweb/wgsl/#nume
 
 
 `dispatch` are number of GPU workgroups of X, Y, Z. 1 <= `dispatch.length` <= 3.
+
+### 2.8 Pseudo Random Number Generator (PRNG)
+- `GPUBackend.Xoshiro128pp(options: PRNGOptions?): Xoshiro128pp`
+- `Xoshiro128pp.next(dtype: "u32" | "f32"): NDArray`
+- `Xoshiro128pp.normal(dtype: "f32" | "f16"): NDArray`
+
 
 ## 3. Design
 
