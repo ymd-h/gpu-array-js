@@ -88,9 +88,16 @@ console.log(await c.get(1, 1));
 - `GPUBackend.full(value: number, options: ArrayOptions?): NDArray`
 - `GPUBackend.arange(range: RangeOptions, options: ArrayOptions?): NDArray`
 
+### 2.4 Array Method
+- `NDArray.get(...index: number[]): Promise<number>`
+- `NDArray.get_without_load(...index: number[]): number`
+- `NDArray.set(value: number | number[] | TypedArray, ...index: number[]): undefined`
+- `NDArray.load(): Promise<undefined>`
+- `NDArray.send(): undefined`
 
-### 2.4 Predefined Functions
-#### 2.4.1 Element-wise (Support Broadcast)
+
+### 2.5 Predefined Functions
+#### 2.5.1 Element-wise (Support Broadcast)
 
 - `GPUBackend.add(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
 - `GPUBackend.sub(lhs: NDArray, rhs: NDArray, out: NDArray?): NDArray`
@@ -123,7 +130,7 @@ console.log(await c.get(1, 1));
 - `GPUBackend.min(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
 - `GPUBackend.pow(arg0: NDArray, arg1: NDArray, out: NDArray?): NDArray`
 
-#### 2.4.2 Reduction
+#### 2.5.2 Reduction
 
 - `GPUBackend.sum(arg: NDArray): NDArray`
 - `GPUBackend.prod(arg: NDArray): NDArray`
@@ -131,7 +138,7 @@ console.log(await c.get(1, 1));
 - `GPUBackend.maximum(arg: NDArray): NDArray`
 
 
-### 2.5 Custom Element-wise Function for WGSL Built-in Function
+### 2.6 Custom Element-wise Function for WGSL Built-in Function
 We don't predefine all the WGSL built-in functions,
 but you can still use them.
 
@@ -143,7 +150,7 @@ cf. [WGSL Numeric Built-in Functions](https://gpuweb.github.io/gpuweb/wgsl/#nume
 `f` is a built-in function name.
 
 
-### 2.6 Custom Function from Scratch
+### 2.7 Custom Function from Scratch
 > [!WARNING]
 > This API is not user friendly, nor intended to use.
 
