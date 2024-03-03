@@ -409,6 +409,29 @@ class GPUBackend {
         return a;
     }
 
+    /**
+     * @param {number[] | TypedArray} value
+     * @param {ArrayOptions} options
+     * @returns {NDArray}
+     */
+    asarray(value, options){
+        const o = { shape: value.length };
+        if(value instanceof Uint32Array){
+            o.dtype = "u32";
+        } else if(value instanceof Int32Array){
+            o.dtype = "i32";
+        } else if(value instanceof Float16Array){
+            o.dtype = "f16";
+        } else if(value instanceof Float32Array){
+            o.dtype = "f32";
+        }
+
+        const a = this.Array({ ...o, ...options });
+        a.set(value);
+
+        return a;
+    }
+
     #stridesBuffer(strides){
         this.assertLost();
         const buffer = this.device.createBuffer({
