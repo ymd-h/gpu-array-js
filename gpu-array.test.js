@@ -48,6 +48,17 @@ TEST("Array Creation", [
         const a = gpu.arange({ stop: -2, step: -1 });
         assertAlmostEqual(a, [0, -1]);
     }],
+    ["asarray()", async () => {
+        const a = gpu.asarray([0, 1, 3]);
+        assertAlmostEqual(a, [0, 1, 3]);
+
+        const b = gpu.asarray(new Uint32Array([1, 4, 2]), { dtype: "f32" });
+        assertAlmostEqual(b, [1, 4, 2]);
+
+        const c = gpu.asarray([2, 2, 3, 3], { shape: [2, 2] });
+        assertEqual(c.shape, [2, 2]);
+        assertAlmostEqual(c, [2, 2, 3, 3]);
+    }],
 ]);
 
 
