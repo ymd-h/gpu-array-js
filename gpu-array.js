@@ -376,6 +376,7 @@ class GPUBackend {
      * Create Range NDArray
      * @param {RangeOptions} range
      * @param {ArrayOptions?} options
+     * @returns {NDArray}
      */
     arange({ start, stop, step }, options){
         if(stop === undefined){
@@ -411,7 +412,7 @@ class GPUBackend {
 
     /**
      * @param {number[] | TypedArray} value
-     * @param {ArrayOptions} options
+     * @param {ArrayOptions?} options
      * @returns {NDArray}
      */
     asarray(value, options){
